@@ -142,6 +142,28 @@ else:
 
 # ------------------ If Data is Loaded ------------------
 if df is not None:
+    # Tabs
+    tab1, tab2, tab3, tab4, tab5 = st.tabs([
+        "📊 KPI Summary", 
+        "📈 Drill-Down Dashboard", 
+        "📉 Analyst Dashboard", 
+        "📋 Remediation Table", 
+        "🧠 AI Insights"
+    ])
+
+    # Tab 1 – KPI
+    with tab1:
+        st.subheader("KPI Metrics")
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            kpi_card("Total Issues", len(df), "📊", "blue")
+        with col2:
+            kpi_card("Completed", df['status'].str.lower().eq('completed').sum(), "✅", "green")
+        with col3:
+            kpi_card("High Severity Open", len(df[(df['severity'].str.lower() == 'high') & (df['status'].str.lower() != 'completed')]), "⚠️", "red")
+        with col4:
+            kpi_card("Overdue", len(df[(df['status'].str.lower() != 'completed') & (df['when'] < pd.Timestamp.today())]), "⏰", "orange")
+
     # Filters
     st.sidebar.header("Filters")
     severity_filter = st.sidebar.multiselect("Severity", df['severity'].dropna().unique())
@@ -164,28 +186,6 @@ if df is not None:
         filtered_df = filtered_df[filtered_df['when'] >= pd.to_datetime(start_date)]
     if end_date:
         filtered_df = filtered_df[filtered_df['when'] <= pd.to_datetime(end_date)]
-
-    # Tabs
-    tab1, tab2, tab3, tab4, tab5 = st.tabs([
-        "📊 KPI Summary", 
-        "📈 Drill-Down Dashboard", 
-        "📉 Analyst Dashboard", 
-        "📋 Remediation Table", 
-        "🧠 AI Insights"
-    ])
-
-    # Tab 1 – KPI
-    with tab1:
-        st.subheader("KPI Metrics")
-        col1, col2, col3, col4 = st.columns(4)
-        with col1:
-            kpi_card("Total Issues", len(filtered_df), "📊", "blue")
-        with col2:
-            kpi_card("Completed", filtered_df['status'].str.lower().eq('completed').sum(), "✅", "green")
-        with col3:
-            kpi_card("High Severity Open", len(filtered_df[(filtered_df['severity'].str.lower() == 'high') & (filtered_df['status'].str.lower() != 'completed')]), "⚠️", "red")
-        with col4:
-            kpi_card("Overdue", len(filtered_df[(filtered_df['status'].str.lower() != 'completed') & (filtered_df['when'] < pd.Timestamp.today())]), "⏰", "orange")
 
     # Tab 2 – Drill-Down
     with tab2:
@@ -213,7 +213,7 @@ if df is not None:
         ax_heatmap.tick_params(axis='x', rotation=45)
         ax_heatmap.tick_params(axis='y', rotation=0)
         st.pyplot(fig_heatmap)
-    
+
         st.subheader("Timeline of Remediation Issues")
         fig_scatter, ax_scatter = plt.subplots(figsize=(10, 6))
         sns.scatterplot(
@@ -230,11 +230,11 @@ if df is not None:
         ax_scatter.set_xlabel("Due Date")
         ax_scatter.set_ylabel("Domain")
         ax_scatter.grid(True, linestyle='--', linewidth=0.5)
-        
+
         # Rotate the x-axis labels and change their format
         ax_scatter.xaxis.set_major_formatter(mpl.dates.DateFormatter('%b %d'))
         plt.setp(ax_scatter.xaxis.get_majorticklabels(), rotation=45, ha="right")
-        
+
         st.pyplot(fig_scatter)
 
     # Tab 4 – Table
