@@ -157,33 +157,38 @@ if df is not None:
         st.dataframe(df_drilled[['record_id', 'domain', 'severity', 'status', 'who', 'when', 'action', 'recommendation']])
 
     # Tab 3 – Analyst Dashboard
-    with tab3:
-        st.subheader("Severity by Domain Heatmap")
-        fig_heatmap, ax_heatmap = plt.subplots(figsize=(8, 5))
-        pivot = pd.crosstab(filtered_df['domain'], filtered_df['severity'])
-        sns.heatmap(pivot, annot=True, fmt="d", cmap="YlGnBu", linewidths=.5, linecolor='gray', ax=ax_heatmap, cbar_kws={'label': 'Count'})
-        ax_heatmap.set_title("Severity by Domain Heatmap", fontsize=14, fontweight='bold')
-        ax_heatmap.tick_params(axis='x', rotation=45)
-        ax_heatmap.tick_params(axis='y', rotation=0)
-        st.pyplot(fig_heatmap)
+with tab3:
+    st.subheader("Severity by Domain Heatmap")
+    fig_heatmap, ax_heatmap = plt.subplots(figsize=(8, 5))
+    pivot = pd.crosstab(filtered_df['domain'], filtered_df['severity'])
+    sns.heatmap(pivot, annot=True, fmt="d", cmap="YlGnBu", linewidths=.5, linecolor='gray', ax=ax_heatmap, cbar_kws={'label': 'Count'})
+    ax_heatmap.set_title("Severity by Domain Heatmap", fontsize=14, fontweight='bold')
+    ax_heatmap.tick_params(axis='x', rotation=45)
+    ax_heatmap.tick_params(axis='y', rotation=0)
+    st.pyplot(fig_heatmap)
 
-        st.subheader("Timeline of Remediation Issues")
-        fig_scatter, ax_scatter = plt.subplots(figsize=(10, 6))
-        sns.scatterplot(
-            data=filtered_df,
-            x='when',
-            y='domain',
-            hue='status',
-            style='severity',
-            palette='deep',
-            s=100,
-            ax=ax_scatter
-        )
-        ax_scatter.set_title("Issue Timeline by Domain and Status", fontsize=14, fontweight='bold')
-        ax_scatter.set_xlabel("Due Date")
-        ax_scatter.set_ylabel("Domain")
-        ax_scatter.grid(True, linestyle='--', linewidth=0.5)
-        st.pyplot(fig_scatter)
+    st.subheader("Timeline of Remediation Issues")
+    fig_scatter, ax_scatter = plt.subplots(figsize=(10, 6))
+    sns.scatterplot(
+        data=filtered_df,
+        x='when',
+        y='domain',
+        hue='status',
+        style='severity',
+        palette='deep',
+        s=100,
+        ax=ax_scatter
+    )
+    ax_scatter.set_title("Issue Timeline by Domain and Status", fontsize=14, fontweight='bold')
+    ax_scatter.set_xlabel("Due Date")
+    ax_scatter.set_ylabel("Domain")
+    ax_scatter.grid(True, linestyle='--', linewidth=0.5)
+    
+    # Rotate the x-axis labels and change their format
+    ax_scatter.xaxis.set_major_formatter(mpl.dates.DateFormatter('%b %d'))
+    plt.setp(ax_scatter.xaxis.get_majorticklabels(), rotation=45, ha="right")
+    
+    st.pyplot(fig_scatter)
 
     # Tab 4 – Table
     with tab4:
