@@ -1,17 +1,14 @@
-
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import plotly.express as px
 import random
 from datetime import datetime, timedelta
 import matplotlib as mpl
 from io import BytesIO
-import plotly.express as px
 
-# -----------------------------------
-# Dark Theme Setup
-# -----------------------------------
+# ------------------ Dark Mode Chart Styling ------------------
 dark_theme_style = {
     "axes.facecolor": "#1e1e1e",
     "axes.edgecolor": "white",
@@ -31,17 +28,14 @@ dark_theme_style = {
 mpl.rcParams.update(dark_theme_style)
 sns.set_style("darkgrid")
 
+# ------------------ Streamlit Setup ------------------
 st.set_page_config(layout="wide")
 st.title("ShieldInsights.ai – Real-Time Remediation Dashboard")
 
-# -----------------------------------
-# Data Source Selector
-# -----------------------------------
+# ------------------ Data Source Selection ------------------
 data_source = st.radio("Select Data Source:", ["Upload Excel File", "Use API (Simulated)"])
 
-# -----------------------------------
-# Mock Data Generator
-# -----------------------------------
+# ------------------ Generate Structured Mock Data ------------------
 def generate_structured_mock_data(num_rows=30):
     domains = ["IAM", "Cloud Security", "Network", "Endpoint", "GRC", "Data Protection"]
     severities = ["Low", "Medium", "High", "Critical"]
@@ -84,9 +78,7 @@ def generate_structured_mock_data(num_rows=30):
         })
     return pd.DataFrame(mock_rows)
 
-# -----------------------------------
-# API Simulation and Enrichment
-# -----------------------------------
+# ------------------ Simulated API Logic ------------------
 def get_api_data():
     data = generate_structured_mock_data(num_rows=3)
     if len(data) < 10:
@@ -95,9 +87,7 @@ def get_api_data():
         return enriched_data
     return data
 
-# -----------------------------------
-# Data Loading Logic
-# -----------------------------------
+# ------------------ Load Data ------------------
 df = None
 if data_source == "Upload Excel File":
     uploaded_file = st.file_uploader("Upload Remediation Excel File", type=["xlsx"])
@@ -107,11 +97,9 @@ if data_source == "Upload Excel File":
 else:
     df = get_api_data()
 
-# -----------------------------------
-# Dashboard Rendering
-# -----------------------------------
+# ------------------ If Data is Loaded ------------------
 if df is not None:
-    # Filters Sidebar
+    # Filters
     st.sidebar.header("Filters")
     severity_filter = st.sidebar.multiselect("Severity", df['severity'].dropna().unique())
     status_filter = st.sidebar.multiselect("Status", df['status'].dropna().unique())
@@ -134,8 +122,16 @@ if df is not None:
     if end_date:
         filtered_df = filtered_df[filtered_df['when'] <= pd.to_datetime(end_date)]
 
-    tab1, tab2, tab3, tab4 = st.tabs(["📊 KPI Summary", "📈 Dashboards", "📋 Remediation Table", "🧠 AI Insights"])
+    # Tabs
+    tab1, tab2, tab3, tab4, tab5 = st.tabs([
+        "📊 KPI Summary", 
+        "📈 Drill-Down Dashboard", 
+        "📉 Analyst Dashboard", 
+        "📋 Remediation Table", 
+        "🧠 AI Insights"
+    ])
 
+    # Tab 1 – KPI
     with tab1:
         st.subheader("KPI Metrics")
         col1, col2, col3, col4 = st.columns(4)
@@ -144,22 +140,53 @@ if df is not None:
         col3.metric("High Severity Open", len(filtered_df[(filtered_df['severity'].str.lower() == 'high') & (filtered_df['status'].str.lower() != 'completed')]))
         col4.metric("Overdue", len(filtered_df[(filtered_df['status'].str.lower() != 'completed') & (filtered_df['when'] < pd.Timestamp.today())]))
 
+    # Tab 2 – Drill-Down
     with tab2:
-        st.subheader("Remediation Status Distribution")
+        st.subheader("Status Distribution")
         pie_fig = px.pie(filtered_df, names='status', title='Status Distribution', hole=0.3)
         st.plotly_chart(pie_fig)
 
-        drilldown_status = st.selectbox("Drill down into Status:", filtered_df['status'].unique())
-        df_drilled = filtered_df[filtered_df['status'] == drilldown_status]
+        drill_status = st.selectbox("Drill Down into Status:", filtered_df['status'].unique())
+        df_drilled = filtered_df[filtered_df['status'] == drill_status]
 
-        st.subheader(f"Domain vs. Severity for Status: {drilldown_status}")
+        st.subheader(f"Domain vs. Severity for Status: {drill_status}")
         bar_fig = px.bar(df_drilled, x='domain', color='severity', barmode='group')
         st.plotly_chart(bar_fig)
 
-        st.subheader(f"Remediation Items for Status: {drilldown_status}")
+        st.subheader(f"Remediation Items for Status: {drill_status}")
         st.dataframe(df_drilled[['record_id', 'domain', 'severity', 'status', 'who', 'when', 'action', 'recommendation']])
 
+    # Tab 3 – Analyst Dashboard
     with tab3:
+        st.subheader("Severity by Domain Heatmap")
+        fig_heatmap, ax_heatmap = plt.subplots(figsize=(8, 5))
+        pivot = pd.crosstab(filtered_df['domain'], filtered_df['severity'])
+        sns.heatmap(pivot, annot=True, fmt="d", cmap="YlGnBu", linewidths=.5, linecolor='gray', ax=ax_heatmap, cbar_kws={'label': 'Count'})
+        ax_heatmap.set_title("Severity by Domain Heatmap", fontsize=14, fontweight='bold')
+        ax_heatmap.tick_params(axis='x', rotation=45)
+        ax_heatmap.tick_params(axis='y', rotation=0)
+        st.pyplot(fig_heatmap)
+
+        st.subheader("Timeline of Remediation Issues")
+        fig_scatter, ax_scatter = plt.subplots(figsize=(10, 6))
+        sns.scatterplot(
+            data=filtered_df,
+            x='when',
+            y='domain',
+            hue='status',
+            style='severity',
+            palette='deep',
+            s=100,
+            ax=ax_scatter
+        )
+        ax_scatter.set_title("Issue Timeline by Domain and Status", fontsize=14, fontweight='bold')
+        ax_scatter.set_xlabel("Due Date")
+        ax_scatter.set_ylabel("Domain")
+        ax_scatter.grid(True, linestyle='--', linewidth=0.5)
+        st.pyplot(fig_scatter)
+
+    # Tab 4 – Table
+    with tab4:
         st.subheader("Filtered Remediation Table")
         st.dataframe(filtered_df)
 
@@ -171,24 +198,21 @@ if df is not None:
 
         st.download_button("Download Filtered Data", data=export_excel(filtered_df), file_name="filtered_remediation.xlsx")
 
-    with tab4:
+    # Tab 5 – AI Insights
+    with tab5:
         st.subheader("AI-Generated Insights")
         insights = []
         high_sev_open = filtered_df[(filtered_df['severity'].str.lower() == 'high') & (filtered_df['status'].str.lower() != 'completed')]
         if not high_sev_open.empty:
             insights.append(f"There are {len(high_sev_open)} high severity issues still open.")
-
         overdue = filtered_df[(filtered_df['status'].str.lower() != 'completed') & (filtered_df['when'] < pd.Timestamp.today())]
         if not overdue.empty:
             insights.append(f"{len(overdue)} items are overdue across {overdue['domain'].nunique()} domains.")
-
         if not filtered_df['who'].isna().all():
             top_team = filtered_df['who'].value_counts().idxmax()
             insights.append(f"The '{top_team}' team owns the most items.")
-
         if 'source_tool' in filtered_df.columns and not filtered_df['source_tool'].isna().all():
             top_tool = filtered_df['source_tool'].value_counts().idxmax()
             insights.append(f"The top reporting tool is '{top_tool}'.")
-
         for i, insight in enumerate(insights, 1):
             st.markdown(f"**{i}. {insight}**")
