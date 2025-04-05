@@ -7,6 +7,7 @@ import random
 from datetime import datetime, timedelta
 import matplotlib as mpl
 from io import BytesIO
+import streamlit.components.v1 as components
 
 # ------------------ Dark Mode Chart Styling ------------------
 dark_theme_style = {
@@ -31,6 +32,48 @@ sns.set_style("darkgrid")
 # ------------------ Streamlit Setup ------------------
 st.set_page_config(layout="wide")
 st.title("ShieldInsights.ai – Real-Time Remediation Dashboard")
+
+# ------------------ Custom CSS for KPI Cards ------------------
+custom_css = """
+<style>
+.kpi-card {
+    border-radius: 10px;
+    padding: 20px;
+    margin: 10px;
+    background-color: #2a2a2a;
+    color: white;
+}
+.kpi-card.green {
+    border: 3px solid #4CAF50;
+}
+.kpi-card.red {
+    border: 3px solid #F44336;
+}
+.kpi-card.blue {
+    border: 3px solid #2196F3;
+}
+.kpi-card.orange {
+    border: 3px solid #FF9800;
+}
+.kpi-icon {
+    font-size: 50px;
+    margin-bottom: 10px;
+}
+</style>
+"""
+
+st.markdown(custom_css, unsafe_allow_html=True)
+
+# Function to create a KPI card
+def kpi_card(title, value, icon, color):
+    card_html = f"""
+    <div class="kpi-card {color}">
+        <div class="kpi-icon">{icon}</div>
+        <h3>{title}</h3>
+        <h1>{value}</h1>
+    </div>
+    """
+    components.html(card_html, height=200)
 
 # ------------------ Data Source Selection ------------------
 data_source = st.radio("Select Data Source:", ["Upload Excel File", "Use API (Simulated)"])
@@ -135,10 +178,14 @@ if df is not None:
     with tab1:
         st.subheader("KPI Metrics")
         col1, col2, col3, col4 = st.columns(4)
-        col1.metric("Total Issues", len(filtered_df))
-        col2.metric("Completed", filtered_df['status'].str.lower().eq('completed').sum())
-        col3.metric("High Severity Open", len(filtered_df[(filtered_df['severity'].str.lower() == 'high') & (filtered_df['status'].str.lower() != 'completed')]))
-        col4.metric("Overdue", len(filtered_df[(filtered_df['status'].str.lower() != 'completed') & (filtered_df['when'] < pd.Timestamp.today())]))
+        with col1:
+            kpi_card("Total Issues", len(filtered_df), "📊", "blue")
+        with col2:
+            kpi_card("Completed", filtered_df['status'].str.lower().eq('completed').sum(), "✅", "green")
+        with col3:
+            kpi_card("High Severity Open", len(filtered_df[(filtered_df['severity'].str.lower() == 'high') & (filtered_df['status'].str.lower() != 'completed')]), "⚠️", "red")
+        with col4:
+            kpi_card("Overdue", len(filtered_df[(filtered_df['status'].str.lower() != 'completed') & (filtered_df['when'] < pd.Timestamp.today())]), "⏰", "orange")
 
     # Tab 2 – Drill-Down
     with tab2:
