@@ -188,7 +188,7 @@ st.title("ShieldInsights.ai – Real-Time Remediation Dashboard")
 
 # ------------------ Main Branch: RISK Cognizance vs. Simulated Integrations ------------------
 if integration_mode == "RISK Cognizance API (Current MVP)":
-    # ---------- RISK Cognizance Data Source Selection ----------
+    # RISK Cognizance Data Source Selection
     data_source_option = st.radio("Select Data Source:", ["Upload Excel File", "Use API (Simulated)"])
     df = None
     if data_source_option == "Upload Excel File":
@@ -198,28 +198,37 @@ if integration_mode == "RISK Cognizance API (Current MVP)":
             df['when'] = pd.to_datetime(df['when'], errors='coerce')
     else:
         df = get_api_data()
-    
-    # ---------- Dashboard Tabs for RISK Cognizance ----------
-    tab1, tab2, tab3, tab4, tab5 = st.tabs([
-        "📊 KPI Summary", 
-        "📈 Drill-Down Dashboard", 
-        "📉 Analyst Dashboard", 
-        "📋 Remediation Table", 
-        "🧠 AI Insights"
-    ])
 
-    # Tab 1 – KPI Summary
-    with tab1:
-        st.subheader("KPI Metrics")
-        col1, col2, col3, col4 = st.columns(4)
-        with col1:
-            kpi_card("Total Issues", len(df), "📊", "blue")
-        with col2:
-            kpi_card("Completed", df['status'].str.lower().eq('completed').sum(), "✅", "green")
-        with col3:
-            kpi_card("High Severity Open", len(df[(df['severity'].str.lower() == 'high') & (df['status'].str.lower() != 'completed')]), "⚠️", "red")
-        with col4:
-            kpi_card("Overdue", len(df[(df['status'].str.lower() != 'completed') & (df['when'] < pd.Timestamp.today())]), "⏰", "orange")
+    # Debug: Check if df is loaded correctly
+    if df is None:
+        st.error("Failed to load data")
+    else:
+        st.write("Data loaded successfully")
+        st.write(df.head())  # Print the first few rows of df
+
+    # Ensure df is not None before proceeding
+    if df is not None:
+        # Dashboard Tabs for RISK Cognizance
+        tab1, tab2, tab3, tab4, tab5 = st.tabs([
+            "📊 KPI Summary", 
+            "📈 Drill-Down Dashboard", 
+            "📉 Analyst Dashboard", 
+            "📋 Remediation Table", 
+            "🧠 AI Insights"
+        ])
+
+        # Tab 1 – KPI Summary
+        with tab1:
+            st.subheader("KPI Metrics")
+            col1, col2, col3, col4 = st.columns(4)
+            with col1:
+                kpi_card("Total Issues", len(df), "📊", "blue")
+            with col2:
+                kpi_card("Completed", df['status'].str.lower().eq('completed').sum(), "✅", "green")
+            with col3:
+                kpi_card("High Severity Open", len(df[(df['severity'].str.lower() == 'high') & (df['status'].str.lower() != 'completed')]), "⚠️", "red")
+            with col4:
+                kpi_card("Overdue", len(df[(df['status'].str.lower() != 'completed') & (df['when'] < pd.Timestamp.today())]), "⏰", "orange")today())]), "⏰", "orange")
     
     # Sidebar Filters for RISK Cognizance Data
     st.sidebar.header("Filters")
