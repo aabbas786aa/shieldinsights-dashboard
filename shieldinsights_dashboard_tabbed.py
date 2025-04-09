@@ -1,6 +1,8 @@
 import streamlit as st
+
 # Set page configuration
 st.set_page_config(layout="wide")
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -181,7 +183,7 @@ integration_mode = st.sidebar.radio("Select Integration Mode:",
     ["RISK Cognizance API (Current MVP)", "Simulated Integrations (CrowdStrike, Okta, Splunk)"])
 
 # ------------------ Main Dashboard Title & Page Config ------------------
-st.set_page_config(layout="wide")
+# st.set_page_config(layout="wide")
 st.title("ShieldInsights.ai – Real-Time Remediation Dashboard")
 
 # ------------------ Main Branch: RISK Cognizance vs. Simulated Integrations ------------------
