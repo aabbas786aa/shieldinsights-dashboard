@@ -228,7 +228,7 @@ if integration_mode == "RISK Cognizance API (Current MVP)":
             with col3:
                 kpi_card("High Severity Open", len(df[(df['severity'].str.lower() == 'high') & (df['status'].str.lower() != 'completed')]), "⚠️", "red")
             with col4:
-                kpi_card("Overdue", len(df[(df['status'].str.lower() != 'completed') & (df['when'] < pd.Timestamp.today())]), "⏰", "orange")Timestamp.today())]), "⏰", "orange")today())]), "⏰", "orange")
+                kpi_card("Overdue", len(df[(df['status'].str.lower() != 'completed') & (df['when'] < pd.Timestamp.today())]), "⏰", "orange")
     
     # Sidebar Filters for RISK Cognizance Data
     st.sidebar.header("Filters")
