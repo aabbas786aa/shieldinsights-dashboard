@@ -14,18 +14,38 @@ st.set_page_config(layout="wide")
 # Placeholder for file upload
 uploaded_file = st.sidebar.file_uploader("Upload your data file", type=["csv", "xlsx"])
 
+if df is None or df.empty:
+    st.warning("No data available. Please upload a valid dataset.")
+    st.stop()  # Prevent further execution if no data
+    
 df = None
 filtered_df = pd.DataFrame()  # Initialize as an empty DataFrame
 
-# Load uploaded file
+# Validate uploaded file before processing
 if uploaded_file is not None:
-    if uploaded_file.name.endswith('.csv'):
-        df = pd.read_csv(uploaded_file)
-    elif uploaded_file.name.endswith('.xlsx'):
-        df = pd.read_excel(uploaded_file)
-    st.sidebar.success("File uploaded successfully!")
+        if uploaded_file.name.endswith(".csv"):
+            df = pd.read_csv(uploaded_file)
+        elif uploaded_file.name.endswith(".xlsx"):
+            df = pd.read_excel(uploaded_file)
+            
+        # Additional check for required columns
+        required_columns = ['when', 'domain', 'status', 'severity']
+        if not set(required_columns).issubset(df.columns):
+            st.error(f"Uploaded file is missing required columns: {', '.join(required_columns)}")
+            st.stop()
+        st.sidebar.success("File uploaded successfully!")
+
+         # Validate if df is empty
+    if df is None or df.empty:
+        st.warning("No data available. Please upload a valid dataset.")
+        st.stop()  # Prevent further execution if no data 
+        
+    #except Exception as e:
+        #st.error(f"Error reading file: {e}")
+       # st.stop()
 else:
     st.sidebar.warning("Please upload a data file to proceed.")
+    st.stop()
 
 # ------------------ Theme Toggle ------------------
 theme_option = st.sidebar.radio("Choose Theme", ["Dark", "Light"])
@@ -136,11 +156,13 @@ with tab4:
         st.dataframe(filtered_df)
 
         # Export function for Excel
-        def export_excel(data):
-            output = BytesIO()
-            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-                data.to_excel(writer, index=False)
-            return output.getvalue()
+       def export_excel(data):
+        if data.empty:
+            return None
+        output = BytesIO()
+        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+            data.to_excel(writer, index=False)
+        return output.getvalue()
 
         # Download button for filtered data
         st.download_button(
