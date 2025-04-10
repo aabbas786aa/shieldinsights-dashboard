@@ -4,6 +4,23 @@ import streamlit as st
 st.set_page_config(layout="wide")
 
 import pandas as pd
+
+# Placeholder for file upload
+uploaded_file = st.sidebar.file_uploader("Upload your data file", type=["csv", "xlsx"])
+
+if uploaded_file is not None:
+    # Load the uploaded file into a DataFrame
+    if uploaded_file.name.endswith('.csv'):
+        df = pd.read_csv(uploaded_file)
+    elif uploaded_file.name.endswith('.xlsx'):
+        df = pd.read_excel(uploaded_file)
+    
+    # Render the severity filter only if the data is loaded
+    severity_filter = st.sidebar.multiselect("Severity", df['severity'].dropna().unique())
+else:
+    # Display a message prompting the user to upload the file
+    st.sidebar.warning("Please upload a data file to proceed.")
+    
 import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.express as px
