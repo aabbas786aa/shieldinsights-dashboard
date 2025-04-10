@@ -249,13 +249,22 @@ if integration_mode == "RISK Cognizance API (Current MVP)":
     
     # Sidebar Filters for RISK Cognizance Data
     st.sidebar.header("Filters")
-    severity_filter = st.sidebar.multiselect("Severity", df['severity'].dropna().unique())
-    status_filter = st.sidebar.multiselect("Status", df['status'].dropna().unique())
-    team_filter = st.sidebar.multiselect("Team", df['who'].dropna().unique())
-    tool_filter = st.sidebar.multiselect("Source Tool", df['source_tool'].dropna().unique())
-    start_date = st.sidebar.date_input("Start Due Date", value=None)
-    end_date = st.sidebar.date_input("End Due Date", value=None)
 
+    if df is not None:
+        # Render filters only if df is loaded
+        severity_filter = st.sidebar.multiselect("Severity", df['severity'].dropna().unique())
+        status_filter = st.sidebar.multiselect("Status", df['status'].dropna().unique())
+        
+        #severity_filter = st.sidebar.multiselect("Severity", df['severity'].dropna().unique())
+        #status_filter = st.sidebar.multiselect("Status", df['status'].dropna().unique())
+        
+        team_filter = st.sidebar.multiselect("Team", df['who'].dropna().unique())
+        tool_filter = st.sidebar.multiselect("Source Tool", df['source_tool'].dropna().unique())
+        start_date = st.sidebar.date_input("Start Due Date", value=None)
+        end_date = st.sidebar.date_input("End Due Date", value=None)
+    else:
+        st.sidebar.warning("Please upload or load the data to apply filters.")
+        
     filtered_df = df.copy()
     if severity_filter:
         filtered_df = filtered_df[filtered_df['severity'].isin(severity_filter)]
