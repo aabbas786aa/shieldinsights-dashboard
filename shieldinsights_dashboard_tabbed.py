@@ -194,7 +194,7 @@ with tab5:
             overdue = filtered_df[
                 (filtered_df['status'].str.lower() != 'completed') &
                 (filtered_df['when'] < pd.Timestamp.today())
-            ]
+        
             if not overdue.empty:
                 insights.append(f"{len(overdue)} items are overdue across {overdue['domain'].nunique()} domains.")
 
