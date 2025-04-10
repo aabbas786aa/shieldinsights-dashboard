@@ -246,7 +246,25 @@ if integration_mode == "RISK Cognizance API (Current MVP)":
                 kpi_card("High Severity Open", len(df[(df['severity'].str.lower() == 'high') & (df['status'].str.lower() != 'completed')]), "⚠️", "red")
             with col4:
                 kpi_card("Overdue", len(df[(df['status'].str.lower() != 'completed') & (df['when'] < pd.Timestamp.today())]), "⏰", "orange")
-    
+
+        # Tab 2 – Drill-Down Dashboard
+        with tab2:
+            st.subheader("Status Distribution")
+            pie_fig = px.pie(filtered_df, names='status', title='Status Distribution', hole=0.3)
+            st.plotly_chart(pie_fig)
+            
+            drill_status = st.selectbox("Drill Down into Status:", filtered_df['status'].unique())
+            df_drilled = filtered_df[filtered_df['status'] == drill_status]
+            
+            st.subheader(f"Domain vs. Severity for Status: {drill_status}")
+            bar_fig = px.bar(df_drilled, x='domain', color='severity', barmode='group')
+            st.plotly_chart(bar_fig)
+            
+            st.subheader(f"Remediation Items for Status: {drill_status}")
+            st.dataframe(df_drilled[['record_id', 'domain', 'severity', 'status', 'who', 'when', 'action', 'recommendation']])
+    else:
+        st.error("Data is not loaded. Please upload a file or load data to proceed.")  
+              
     # Sidebar Filters for RISK Cognizance Data
     st.sidebar.header("Filters")
 
@@ -284,22 +302,6 @@ if integration_mode == "RISK Cognizance API (Current MVP)":
         st.error("Data is not loaded. Please upload a file or load data to proceed.")
         filtered_df = None  # Set filtered_df to None to prevent further errors
         
-    # Tab 2 – Drill-Down Dashboard
-    with tab2:
-        st.subheader("Status Distribution")
-        pie_fig = px.pie(filtered_df, names='status', title='Status Distribution', hole=0.3)
-        st.plotly_chart(pie_fig)
-        
-        drill_status = st.selectbox("Drill Down into Status:", filtered_df['status'].unique())
-        df_drilled = filtered_df[filtered_df['status'] == drill_status]
-        
-        st.subheader(f"Domain vs. Severity for Status: {drill_status}")
-        bar_fig = px.bar(df_drilled, x='domain', color='severity', barmode='group')
-        st.plotly_chart(bar_fig)
-        
-        st.subheader(f"Remediation Items for Status: {drill_status}")
-        st.dataframe(df_drilled[['record_id', 'domain', 'severity', 'status', 'who', 'when', 'action', 'recommendation']])
-    
     # Tab 3 – Analyst Dashboard
     with tab3:
         st.subheader("Severity by Domain Heatmap")
