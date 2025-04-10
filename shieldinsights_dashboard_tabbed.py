@@ -264,21 +264,26 @@ if integration_mode == "RISK Cognizance API (Current MVP)":
         end_date = st.sidebar.date_input("End Due Date", value=None)
     else:
         st.sidebar.warning("Please upload or load the data to apply filters.")
-        
-    filtered_df = df.copy()
-    if severity_filter:
-        filtered_df = filtered_df[filtered_df['severity'].isin(severity_filter)]
-    if status_filter:
-        filtered_df = filtered_df[filtered_df['status'].isin(status_filter)]
-    if team_filter:
-        filtered_df = filtered_df[filtered_df['who'].isin(team_filter)]
-    if tool_filter:
-        filtered_df = filtered_df[filtered_df['source_tool'].isin(tool_filter)]
-    if start_date:
-        filtered_df = filtered_df[filtered_df['when'] >= pd.to_datetime(start_date)]
-    if end_date:
-        filtered_df = filtered_df[filtered_df['when'] <= pd.to_datetime(end_date)]
     
+    if df is not None:    
+        filtered_df = df.copy()
+        if severity_filter:
+            filtered_df = filtered_df[filtered_df['severity'].isin(severity_filter)]
+        if status_filter:
+            filtered_df = filtered_df[filtered_df['status'].isin(status_filter)]
+        if team_filter:
+            filtered_df = filtered_df[filtered_df['who'].isin(team_filter)]
+        if tool_filter:
+            filtered_df = filtered_df[filtered_df['source_tool'].isin(tool_filter)]
+        if start_date:
+            filtered_df = filtered_df[filtered_df['when'] >= pd.to_datetime(start_date)]
+        if end_date:
+            filtered_df = filtered_df[filtered_df['when'] <= pd.to_datetime(end_date)]
+    else:
+        # Handle the case where df is None
+        st.error("Data is not loaded. Please upload a file or load data to proceed.")
+        filtered_df = None  # Set filtered_df to None to prevent further errors
+        
     # Tab 2 – Drill-Down Dashboard
     with tab2:
         st.subheader("Status Distribution")
