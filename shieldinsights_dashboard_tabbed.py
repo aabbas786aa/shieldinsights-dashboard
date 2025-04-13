@@ -62,10 +62,27 @@ with tabs[1]:
         fig.update_yaxes(autorange='reversed')
         st.plotly_chart(fig, use_container_width=True)
 
-with tabs[2]:
-    st.subheader("🧠 AI Insights (Placeholder)")
-    st.info("AI recommendation engine will populate this tab.")
 
+# ------------------ AI Insights Generator ------------------
+def generate_ai_recommendation(row):
+    if row['Severity'] == 'High' and row['Status'] != 'Resolved':
+        return '🚨 Immediate attention required.'
+    elif row['Tool'] == 'CrowdStrike' and row['Status'] == 'Open':
+        return '⚠️ Review endpoint configurations urgently.'
+    elif row['Team'] == 'GRC':
+        return '📄 Ensure compliance artifacts are updated.'
+    elif row['Status'] == 'In Progress':
+        return '⏳ Monitor progress and confirm ETA.'
+    else:
+        return '✅ Proceed as planned.'
+
+with tabs[2]:
+    st.subheader("🧠 AI-Generated Insights")
+    if df is not None and not df.empty:
+        df['AI Recommendation'] = df.apply(generate_ai_recommendation, axis=1)
+        st.dataframe(df[['Record ID', 'Description', 'Severity', 'Status', 'Tool', 'Team', 'AI Recommendation']])
+    else:
+        st.warning("No data available for AI insights.")
 with tabs[3]:
     st.subheader("📊 KPI Dashboard (Placeholder)")
     st.info("Key performance indicators and charts will appear here.")
