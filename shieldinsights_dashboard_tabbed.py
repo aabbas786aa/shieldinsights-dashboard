@@ -161,8 +161,8 @@ else:
         'Start Date': ['2025-04-01', '2025-04-02', '2025-04-03', '2025-04-04', '2025-04-05'],
         'Due Date': ['2025-04-07', '2025-04-09', '2025-04-06', '2025-04-10', '2025-04-12']
     })
-        df = pd.read_excel(uploaded_file)
-        df['when'] = pd.to_datetime(df['when'], errors='coerce')
+    df = pd.read_excel(uploaded_file)
+    df['when'] = pd.to_datetime(df['when'], errors='coerce')
 else:
     df = get_api_data()
 
