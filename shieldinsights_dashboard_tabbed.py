@@ -5,6 +5,20 @@ import seaborn as sns
 import plotly.express as px
 import random
 from datetime import datetime, timedelta
+
+# ---------------- AI Recommendations Column ----------------
+def generate_ai_recommendation(row):
+    if row["Severity"] == "High" and row["Status"] != "Resolved":
+        return "🚨 Immediate action required. Prioritize within 48h."
+    elif row["Tool"] == "CrowdStrike" and row["Status"] == "Open":
+        return "⚠️ Review CrowdStrike playbook for endpoint remediation."
+    elif row["Team"] == "GRC":
+        return "📄 Validate against latest compliance checklists."
+    elif row["Status"] == "In Progress":
+        return "⏳ Continue monitoring. Verify ETA with team lead."
+    else:
+        return "✅ No critical insight. Proceed as planned."
+
 import matplotlib as mpl
 from io import BytesIO
 import streamlit.components.v1 as components
