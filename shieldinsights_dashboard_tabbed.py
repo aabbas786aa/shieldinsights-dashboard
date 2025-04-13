@@ -147,9 +147,21 @@ def get_api_data():
 # ------------------ Load Data ------------------
 df = None
 if data_source == "Upload Excel File":
-    uploaded_file = st.file_uploader("Upload Remediation Excel File", type=["xlsx"])
-
+uploaded_file = st.file_uploader("Upload Remediation Data", type=["xlsx"])
+if uploaded_file:
     df = pd.read_excel(uploaded_file)
+else:
+    # Use fallback demo dataset
+    df = pd.DataFrame({
+        'Description': ['Patch OpenSSL vulnerability', 'IAM policy audit', 'Firewall port review', 'Phishing simulation', 'SIEM tuning'],
+        'Severity': ['High', 'Medium', 'Low', 'High', 'Medium'],
+        'Status': ['Open', 'In Progress', 'Resolved', 'Open', 'In Progress'],
+        'Team': ['InfraSec', 'GRC', 'Network', 'SOC', 'SOC'],
+        'Tool': ['CrowdStrike', 'SailPoint', 'Palo Alto', 'Proofpoint', 'Splunk'],
+        'Start Date': ['2025-04-01', '2025-04-02', '2025-04-03', '2025-04-04', '2025-04-05'],
+        'Due Date': ['2025-04-07', '2025-04-09', '2025-04-06', '2025-04-10', '2025-04-12']
+    })
+
 else:
     # Fallback sample data
     df = pd.DataFrame({
@@ -161,8 +173,7 @@ else:
         'Start Date': ['2025-04-01', '2025-04-02', '2025-04-03', '2025-04-04', '2025-04-05'],
         'Due Date': ['2025-04-07', '2025-04-09', '2025-04-06', '2025-04-10', '2025-04-12']
     })
-    df = pd.read_excel(uploaded_file)
-    df['when'] = pd.to_datetime(df['when'], errors='coerce')
+        df['when'] = pd.to_datetime(df['when'], errors='coerce')
 else:
     df = get_api_data()
 
