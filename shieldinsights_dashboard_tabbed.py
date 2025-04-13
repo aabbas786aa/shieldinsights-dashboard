@@ -1,25 +1,62 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+from datetime import datetime, timedelta
+import random
 
-st.title("ShieldInsights Remediation Dashboard")
-data_source = st.sidebar.selectbox("Select Data Source", ["Upload Excel File", "API Simulated"])
+st.set_page_config(layout='wide')
+st.title('ShieldInsights.ai – Real-Time Remediation Dashboard')
 
-if data_source == "Upload Excel File":
-    uploaded_file = st.file_uploader("Upload Remediation Data", type=["xlsx"])
+# Data source selection
+data_source = st.radio('Select Data Source:', ['Upload Excel File', 'Use API (Simulated)'])
+
+# Structured mock data generator
+def generate_mock_data(n=30):
+    domains = ['IAM', 'Cloud', 'Network', 'Endpoint']
+    severities = ['Low', 'Medium', 'High']
+    statuses = ['Open', 'In Progress', 'Resolved']
+    teams = ['GRC', 'SOC', 'InfraSec']
+    tools = ['CrowdStrike', 'SailPoint', 'Splunk']
+    data = []
+    for i in range(n):
+        data.append({
+            'Record ID': f'RID-{1000 + i}',
+            'Description': f'Task {i}',
+            'Severity': random.choice(severities),
+            'Status': random.choice(statuses),
+            'Team': random.choice(teams),
+            'Tool': random.choice(tools),
+            'Start Date': (datetime.today() - timedelta(days=random.randint(0, 10))).strftime('%Y-%m-%d'),
+            'Due Date': (datetime.today() + timedelta(days=random.randint(3, 15))).strftime('%Y-%m-%d')
+        })
+    return pd.DataFrame(data)
+
+# Load data
+df = None
+if data_source == 'Upload Excel File':
+    uploaded_file = st.file_uploader('Upload Excel File', type=['xlsx'])
     if uploaded_file:
         df = pd.read_excel(uploaded_file)
     else:
-        df = pd.DataFrame({
-            'Description': ['Patch OpenSSL vulnerability', 'IAM policy audit', 'Firewall port review', 'Phishing simulation', 'SIEM tuning'],
-            'Severity': ['High', 'Medium', 'Low', 'High', 'Medium'],
-            'Status': ['Open', 'In Progress', 'Resolved', 'Open', 'In Progress'],
-            'Team': ['InfraSec', 'GRC', 'Network', 'SOC', 'SOC'],
-            'Tool': ['CrowdStrike', 'SailPoint', 'Palo Alto', 'Proofpoint', 'Splunk'],
-            'Start Date': ['2025-04-01', '2025-04-02', '2025-04-03', '2025-04-04', '2025-04-05'],
-            'Due Date': ['2025-04-07', '2025-04-09', '2025-04-06', '2025-04-10', '2025-04-12']
-        })
+        df = generate_mock_data()
+else:
+    df = generate_mock_data()
 
-# Example table to confirm loading
-st.write("### Remediation Tasks")
+# Show data table
+st.subheader('📋 Remediation Tasks')
 st.dataframe(df)
+
+# Optional visualization
+if 'Start Date' in df.columns and 'Due Date' in df.columns:
+    df['Start Date'] = pd.to_datetime(df['Start Date'], errors='coerce')
+    df['Due Date'] = pd.to_datetime(df['Due Date'], errors='coerce')
+    fig = px.timeline(
+        df,
+        x_start='Start Date',
+        x_end='Due Date',
+        y='Description',
+        color='Status',
+        title='📅 Remediation Timeline'
+    )
+    fig.update_yaxes(autorange='reversed')
+    st.plotly_chart(fig, use_container_width=True)
