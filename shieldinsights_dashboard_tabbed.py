@@ -47,7 +47,7 @@ st.subheader('📋 Remediation Tasks')
 st.dataframe(df)
 
 # ------------------ Dashboard Tabs ------------------
-tabs = st.tabs(["Overview", "Timeline", "Insights", "KPI Dashboard"])
+tabs = st.tabs(["Overview", "Timeline", "Insights", "KPI Dashboard", "Admin / Analyst"])
 
 with tabs[0]:
     st.subheader("🗂 Overview")
@@ -106,18 +106,6 @@ with tabs[3]:
         st.warning("No data available for KPI analysis.")
 
 # ---------------- Admin/Analyst Dashboard ----------------
-with st.expander('📌 Admin / Analyst Dashboard'):
-    st.markdown('### 🔥 Heatmap: Task Status by Team and Severity')
-    if df is not None and not df.empty:
-        heatmap_data = pd.crosstab(df['Team'], df['Severity'])
-        fig1 = px.imshow(
-            heatmap_data,
-            labels=dict(x="Severity", y="Team", color="Count"),
-            color_continuous_scale='Reds',
-            title='Heatmap of Severity by Team'
-        )
-        st.plotly_chart(fig1, use_container_width=True)
-
         st.markdown('### ⏱ Timeline Scatter Plot: Due Dates by Team')
         if 'Due Date' in df.columns:
             df['Due Date'] = pd.to_datetime(df['Due Date'], errors='coerce')
@@ -133,3 +121,36 @@ with st.expander('📌 Admin / Analyst Dashboard'):
             st.plotly_chart(fig2, use_container_width=True)
     else:
         st.warning("No data available for admin analysis.")
+
+# ---------------- Admin/Analyst Dashboard (Polished) ----------------
+with tabs[4]:
+    st.subheader("📌 Admin / Analyst Dashboard")
+    if df is not None and not df.empty:
+        st.markdown("### 🔥 Task Heatmap (Team vs. Severity)")
+        heatmap_df = pd.crosstab(df['Team'], df['Severity'])
+        heatmap_df = heatmap_df.reindex(index=sorted(heatmap_df.index), columns=['Low', 'Medium', 'High'])
+        fig1 = px.imshow(
+            heatmap_df,
+            color_continuous_scale='Viridis',
+            labels=dict(x='Severity', y='Team', color='Task Count'),
+            title='Severity Heatmap by Team',
+        )
+        fig1.update_layout(margin=dict(l=40, r=40, t=40, b=40))
+        st.plotly_chart(fig1, use_container_width=True)
+
+        st.markdown("### ⏱ Timeline Scatter Plot")
+        if 'Due Date' in df.columns:
+            df['Due Date'] = pd.to_datetime(df['Due Date'], errors='coerce')
+            fig2 = px.scatter(
+                df,
+                x='Due Date',
+                y='Team',
+                color='Severity',
+                symbol='Status',
+                hover_data=['Description', 'Status', 'Tool'],
+                title='Upcoming Remediation Tasks by Team'
+            )
+            fig2.update_layout(margin=dict(l=30, r=30, t=40, b=30), plot_bgcolor='#111111')
+            st.plotly_chart(fig2, use_container_width=True)
+    else:
+        st.warning("No data available for admin/analyst analysis.")
