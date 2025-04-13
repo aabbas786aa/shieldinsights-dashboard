@@ -282,3 +282,31 @@ if df is not None:
             insights.append(f"The top reporting tool is '{top_tool}'.")
         for i, insight in enumerate(insights, 1):
             st.markdown(f"**{i}. {insight}**")
+
+with tabs[5]:
+    st.markdown("## 📅 Remediation Timeline")
+    if "Start Date" in filtered_data.columns and "Due Date" in filtered_data.columns:
+        try:
+            timeline_data = filtered_data.copy()
+            timeline_data["Start Date"] = pd.to_datetime(timeline_data["Start Date"], errors='coerce')
+            timeline_data["Due Date"] = pd.to_datetime(timeline_data["Due Date"], errors='coerce')
+            timeline_data = timeline_data.dropna(subset=["Start Date", "Due Date"])
+
+            if not timeline_data.empty:
+                fig = px.timeline(
+                    timeline_data,
+                    x_start="Start Date",
+                    x_end="Due Date",
+                    y="Description",
+                    color="Status",
+                    title="Remediation Timeline",
+                    template="plotly_dark"
+                )
+                fig.update_yaxes(autorange="reversed")
+                st.plotly_chart(fig, use_container_width=True)
+            else:
+                st.info("No valid start/end dates available for timeline visualization.")
+        except Exception as e:
+            st.error(f"Error generating timeline: {e}")
+    else:
+        st.warning("Please ensure your dataset includes 'Start Date' and 'Due Date' columns.")
