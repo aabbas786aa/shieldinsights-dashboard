@@ -104,3 +104,32 @@ with tabs[3]:
         st.plotly_chart(fig, use_container_width=True)
     else:
         st.warning("No data available for KPI analysis.")
+
+# ---------------- Admin/Analyst Dashboard ----------------
+with st.expander('📌 Admin / Analyst Dashboard'):
+    st.markdown('### 🔥 Heatmap: Task Status by Team and Severity')
+    if df is not None and not df.empty:
+        heatmap_data = pd.crosstab(df['Team'], df['Severity'])
+        fig1 = px.imshow(
+            heatmap_data,
+            labels=dict(x="Severity", y="Team", color="Count"),
+            color_continuous_scale='Reds',
+            title='Heatmap of Severity by Team'
+        )
+        st.plotly_chart(fig1, use_container_width=True)
+
+        st.markdown('### ⏱ Timeline Scatter Plot: Due Dates by Team')
+        if 'Due Date' in df.columns:
+            df['Due Date'] = pd.to_datetime(df['Due Date'], errors='coerce')
+            fig2 = px.scatter(
+                df,
+                x='Due Date',
+                y='Team',
+                color='Severity',
+                size_max=10,
+                symbol='Status',
+                title='Remediation Task Timeline by Team'
+            )
+            st.plotly_chart(fig2, use_container_width=True)
+    else:
+        st.warning("No data available for admin analysis.")
