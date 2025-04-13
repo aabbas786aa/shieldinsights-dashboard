@@ -200,6 +200,7 @@ if df is not None:
         filtered_df = filtered_df[filtered_df['when'] >= pd.to_datetime(start_date)]
     if end_date:
         filtered_df = filtered_df[filtered_df['when'] <= pd.to_datetime(end_date)]
+filtered_data = filtered_df.copy()
 
     # Tab 2 – Drill-Down
     with tab2:
