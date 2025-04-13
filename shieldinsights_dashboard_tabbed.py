@@ -283,6 +283,9 @@ if df is not None:
         for i, insight in enumerate(insights, 1):
             st.markdown(f"**{i}. {insight}**")
 
+tabs = st.tabs(["Overview", "AI Insights", "Heatmap", "KPI Trends", "Analyst Dashboard", "Remediation Timeline"])
+
+
 with tabs[5]:
     st.markdown("## 📅 Remediation Timeline")
     if "Start Date" in filtered_data.columns and "Due Date" in filtered_data.columns:
