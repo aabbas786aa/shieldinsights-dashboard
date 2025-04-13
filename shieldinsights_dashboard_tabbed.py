@@ -51,6 +51,11 @@ tabs = st.tabs(["Overview", "Timeline", "Insights", "KPI Dashboard"])
 
 with tabs[0]:
     st.subheader("🗂 Overview")
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Total Tasks", len(df))
+    col2.metric("Open", (df['Status'] == 'Open').sum())
+    col3.metric("Resolved", (df['Status'] == 'Resolved').sum())
+
     st.dataframe(df)
 
 with tabs[1]:
