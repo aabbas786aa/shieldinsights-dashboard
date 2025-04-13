@@ -46,6 +46,30 @@ else:
 st.subheader('📋 Remediation Tasks')
 st.dataframe(df)
 
+# ------------------ Dashboard Tabs ------------------
+tabs = st.tabs(["Overview", "Timeline", "Insights", "KPI Dashboard"])
+
+with tabs[0]:
+    st.subheader("🗂 Overview")
+    st.dataframe(df)
+
+with tabs[1]:
+    st.subheader("📅 Remediation Timeline")
+    if 'Start Date' in df.columns and 'Due Date' in df.columns:
+        df['Start Date'] = pd.to_datetime(df['Start Date'], errors='coerce')
+        df['Due Date'] = pd.to_datetime(df['Due Date'], errors='coerce')
+        fig = px.timeline(df, x_start='Start Date', x_end='Due Date', y='Description', color='Status')
+        fig.update_yaxes(autorange='reversed')
+        st.plotly_chart(fig, use_container_width=True)
+
+with tabs[2]:
+    st.subheader("🧠 AI Insights (Placeholder)")
+    st.info("AI recommendation engine will populate this tab.")
+
+with tabs[3]:
+    st.subheader("📊 KPI Dashboard (Placeholder)")
+    st.info("Key performance indicators and charts will appear here.")
+
 # Optional visualization
 if 'Start Date' in df.columns and 'Due Date' in df.columns:
     df['Start Date'] = pd.to_datetime(df['Start Date'], errors='coerce')
