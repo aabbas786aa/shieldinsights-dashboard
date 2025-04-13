@@ -83,21 +83,19 @@ with tabs[2]:
         st.dataframe(df[['Record ID', 'Description', 'Severity', 'Status', 'Tool', 'Team', 'AI Recommendation']])
     else:
         st.warning("No data available for AI insights.")
-with tabs[3]:
-    st.subheader("📊 KPI Dashboard (Placeholder)")
-    st.info("Key performance indicators and charts will appear here.")
 
-# Optional visualization
-if 'Start Date' in df.columns and 'Due Date' in df.columns:
-    df['Start Date'] = pd.to_datetime(df['Start Date'], errors='coerce')
-    df['Due Date'] = pd.to_datetime(df['Due Date'], errors='coerce')
-    fig = px.timeline(
-        df,
-        x_start='Start Date',
-        x_end='Due Date',
-        y='Description',
-        color='Status',
-        title='📅 Remediation Timeline'
-    )
-    fig.update_yaxes(autorange='reversed')
-    st.plotly_chart(fig, use_container_width=True)
+with tabs[3]:
+    st.subheader("📊 KPI Dashboard")
+    if df is not None and not df.empty:
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Total Tasks", len(df))
+        col2.metric("Open", (df['Status'] == 'Open').sum())
+        col3.metric("Resolved", (df['Status'] == 'Resolved').sum())
+
+        st.markdown("### Severity Distribution")
+        severity_counts = df['Severity'].value_counts().reset_index()
+        severity_counts.columns = ['Severity', 'Count']
+        fig = px.bar(severity_counts, x='Severity', y='Count', color='Severity', title='Severity Breakdown')
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.warning("No data available for KPI analysis.")
