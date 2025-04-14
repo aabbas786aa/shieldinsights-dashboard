@@ -2,31 +2,6 @@ import streamlit as st
 import pandas as pd
 st.set_page_config(layout='wide')
 
-def simulate_integrations_data():
-    import numpy as np
-    import random
-    sample_size = 30
-    tools = ['CrowdStrike', 'Okta', 'Splunk']
-    severities = ['High', 'Medium', 'Low']
-    statuses = ['Open', 'In Progress', 'Resolved']
-    descriptions = ['Endpoint threat detected', 'IAM misconfiguration', 'Anomaly in logs', 'Privilege escalation risk']
-    data = {
-        'record id': [f'R-{i+1:03d}' for i in range(sample_size)],
-        'description': np.random.choice(descriptions, sample_size),
-        'severity': np.random.choice(severities, sample_size),
-        'status': np.random.choice(statuses, sample_size),
-        'tool': np.random.choice(tools, sample_size),
-        'team': np.random.choice(['SOC', 'IAM', 'Infra'], sample_size),
-        'ai recommendation': np.random.choice([
-            'Enable MFA', 'Patch known vulnerabilities', 'Review IAM policies', 'Investigate anomalies'], sample_size),
-        'risk_score': np.random.randint(60, 96, sample_size),
-        'source': np.random.choice(tools, sample_size)
-    }
-    df_sim = pd.DataFrame(data)
-    df_sim.columns = [col.lower().strip() for col in df_sim.columns]
-    return df_sim
-
-
 # ---------------- Integration Mode Toggle ----------------
 def get_api_data():
     # Placeholder: Replace with actual Risk Cognizance API call
@@ -41,6 +16,16 @@ def simulate_integrations_data():
     return simulated
 
 integration_mode = st.sidebar.radio("Select Integration Mode:",
+
+# Bulletproof integration handler
+try:
+    if integration_mode == "Simulated Integrations":
+        data_source = simulate_integrations_data()
+    else:
+        data_source = generate_mock_data()
+except Exception as e:
+    st.error("Data loading failed. Please check integration logic.")
+    st.stop()
                                     ["Risk Cognizance API (Current MVP)", "Simulated Integrations"])
 
 data_source = get_api_data() if integration_mode.startswith("Risk Cognizance") else simulate_integrations_data()
@@ -81,13 +66,6 @@ if data_source == 'Upload Excel File':
     if uploaded_file:
         data_source = pd.read_excel(uploaded_file)
     else:
-
-# Correct mode-based data assignment
-if integration_mode == "Simulated Integrations":
-    data_source = simulate_integrations_data()
-else:
-    data_source = generate_mock_data()
-else:
 else:
 
 # Show data table
