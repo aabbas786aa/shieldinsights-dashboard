@@ -106,22 +106,32 @@ with tabs[3]:
         st.warning("No data available for KPI analysis.")
 
 # ---------------- Admin/Analyst Dashboard ----------------
+
+# ---------------- Admin/Analyst Dashboard (Polished Visuals) ----------------
 with tabs[4]:
     st.subheader("📌 Admin / Analyst Dashboard")
     if df is not None and not df.empty:
-        st.markdown("### 🔥 Task Heatmap (Team vs. Severity)")
+        st.markdown("### 🔥 Severity Heatmap by Team")
         heatmap_df = pd.crosstab(df['Team'], df['Severity'])
         heatmap_df = heatmap_df.reindex(index=sorted(heatmap_df.index), columns=['Low', 'Medium', 'High'])
         fig1 = px.imshow(
             heatmap_df,
-            color_continuous_scale='Viridis',
+            color_continuous_scale='Magma',
             labels=dict(x='Severity', y='Team', color='Task Count'),
-            title='Severity Heatmap by Team',
+            title='Team vs. Severity Heatmap',
         )
-        fig1.update_layout(margin=dict(l=40, r=40, t=40, b=40))
+        fig1.update_layout(
+            title_font_size=16,
+            margin=dict(l=40, r=40, t=40, b=40),
+            xaxis_title='Severity Level',
+            yaxis_title='Team',
+            plot_bgcolor='#1e1e1e',
+            paper_bgcolor='#1e1e1e',
+            font=dict(color='white')
+        )
         st.plotly_chart(fig1, use_container_width=True)
 
-        st.markdown("### ⏱ Timeline Scatter Plot")
+        st.markdown("### ⏱ Task Timeline Scatter View")
         if 'Due Date' in df.columns:
             df['Due Date'] = pd.to_datetime(df['Due Date'], errors='coerce')
             fig2 = px.scatter(
@@ -129,11 +139,19 @@ with tabs[4]:
                 x='Due Date',
                 y='Team',
                 color='Severity',
+                size=[10]*len(df),
                 symbol='Status',
-                hover_data=['Description', 'Status', 'Tool'],
-                title='Upcoming Remediation Tasks by Team'
+                hover_name='Description',
+                hover_data=['Tool', 'Status', 'Team'],
+                title='Task Timeline by Team and Severity',
             )
-            fig2.update_layout(margin=dict(l=30, r=30, t=40, b=30), plot_bgcolor='#111111')
+            fig2.update_layout(
+                title_font_size=16,
+                plot_bgcolor='#1e1e1e',
+                paper_bgcolor='#1e1e1e',
+                font=dict(color='white'),
+                margin=dict(l=30, r=30, t=40, b=30)
+            )
             st.plotly_chart(fig2, use_container_width=True)
     else:
-        st.warning("No data available for admin/analyst analysis.")
+        st.warning("No data available for Admin/Analyst visuals.")
