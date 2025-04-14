@@ -1,4 +1,15 @@
 import streamlit as st
+
+    # ---------------- Risk Scoring Logic ----------------
+    def assign_risk_score(row):
+        base = 50
+        if row.get('severity') == 'High': base += 30
+        elif row.get('severity') == 'Medium': base += 15
+        if row.get('status') == 'Open': base += 10
+        elif row.get('status') == 'In Progress': base += 5
+        return min(base, 100)
+
+    df['Risk Score'] = df.apply(assign_risk_score, axis=1)
 import pandas as pd
 import plotly.express as px
 from datetime import datetime, timedelta
@@ -85,7 +96,7 @@ with tabs[2]:
     st.subheader("🧠 AI-Generated Insights")
     if df is not None and not df.empty:
         df['AI Recommendation'] = df.apply(generate_ai_recommendation, axis=1)
-        st.dataframe(df[['Record ID', 'Description', 'Severity', 'Status', 'Tool', 'Team', 'AI Recommendation']])
+        st.dataframe(df[['Record ID', 'Description', 'Severity', 'Status', 'Tool', 'Team', 'Risk Score', 'AI Recommendation']])
     else:
         st.warning("No data available for AI insights.")
 
