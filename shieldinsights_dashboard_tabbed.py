@@ -1,5 +1,23 @@
 import streamlit as st
 import pandas as pd
+
+# ---------------- Integration Mode Toggle ----------------
+def get_api_data():
+    # Placeholder: Replace with actual Risk Cognizance API call
+    return df.copy() if 'df' in globals() else pd.DataFrame()
+
+def simulate_integrations_data():
+    simulated = df.copy() if 'df' in globals() else pd.DataFrame()
+    if not simulated.empty:
+        simulated['tool'] = simulated['tool'] if 'tool' in simulated.columns else 'CrowdStrike'
+        simulated['source'] = simulated['tool'].apply(lambda t: 'CrowdStrike' if 'cloud' in t.lower() else ('Okta' if 'iam' in t.lower() else 'Splunk'))
+        simulated['risk_score'] = simulated['severity'].apply(lambda s: 90 if s=='High' else (70 if s=='Medium' else 50))
+    return simulated
+
+integration_mode = st.sidebar.radio("Select Integration Mode:",
+                                    ["Risk Cognizance API (Current MVP)", "Simulated Integrations"])
+
+data_source = get_api_data() if integration_mode.startswith("Risk Cognizance") else simulate_integrations_data()
 import plotly.express as px
 from datetime import datetime, timedelta
 import random
@@ -32,19 +50,19 @@ def generate_mock_data(n=30):
     return pd.DataFrame(data)
 
 # Load data
-df = None
+data_source = None
 if data_source == 'Upload Excel File':
     uploaded_file = st.file_uploader('Upload Excel File', type=['xlsx'])
     if uploaded_file:
-        df = pd.read_excel(uploaded_file)
+        data_source = pd.read_excel(uploaded_file)
     else:
-        df = generate_mock_data()
+        data_source = generate_mock_data()
 else:
-    df = generate_mock_data()
+    data_source = generate_mock_data()
 
 # Show data table
 st.subheader('📋 Remediation Tasks')
-st.dataframe(df)
+st.dataframe(data_source)
 
 # ------------------ Dashboard Tabs ------------------
 tabs = st.tabs(["Overview", "Timeline", "Insights", "KPI Dashboard", "Admin / Analyst"])
@@ -52,18 +70,18 @@ tabs = st.tabs(["Overview", "Timeline", "Insights", "KPI Dashboard", "Admin / An
 with tabs[0]:
     st.subheader("🗂 Overview")
     col1, col2, col3 = st.columns(3)
-    col1.metric("Total Tasks", len(df))
-    col2.metric("Open", (df['Status'] == 'Open').sum())
-    col3.metric("Resolved", (df['Status'] == 'Resolved').sum())
+    col1.metric("Total Tasks", len(data_source))
+    col2.metric("Open", (data_source['Status'] == 'Open').sum())
+    col3.metric("Resolved", (data_source['Status'] == 'Resolved').sum())
 
-    st.dataframe(df)
+    st.dataframe(data_source)
 
 with tabs[1]:
     st.subheader("📅 Remediation Timeline")
-    if 'Start Date' in df.columns and 'Due Date' in df.columns:
-        df['Start Date'] = pd.to_datetime(df['Start Date'], errors='coerce')
-        df['Due Date'] = pd.to_datetime(df['Due Date'], errors='coerce')
-        fig = px.timeline(df, x_start='Start Date', x_end='Due Date', y='Description', color='Status')
+    if 'Start Date' in data_source.columns and 'Due Date' in data_source.columns:
+        data_source['Start Date'] = pd.to_datetime(data_source['Start Date'], errors='coerce')
+        data_source['Due Date'] = pd.to_datetime(data_source['Due Date'], errors='coerce')
+        fig = px.timeline(data_source, x_start='Start Date', x_end='Due Date', y='Description', color='Status')
         fig.update_yaxes(autorange='reversed')
         st.plotly_chart(fig, use_container_width=True)
 
@@ -83,14 +101,7 @@ def generate_ai_recommendation(row):
 
 with tabs[2]:
     st.subheader("🧠 AI-Generated Insights")
-    if df is not None and not df.empty:
-
-        # 🔍 Debugging Unique Severity and Status Values
-        st.markdown("#### 🔍 Unique Values in Severity and Status Columns")
-        if 'severity' in df.columns and 'status' in df.columns:
-            st.dataframe(df[['severity', 'status']].drop_duplicates())
-        else:
-            st.warning("Missing one or both columns: 'severity' or 'status'")
+    if data_source is not None and not data_source.empty:
         # ---------------- Risk Scoring Logic ----------------
         def assign_risk_score(row):
             base = 50
@@ -100,22 +111,22 @@ with tabs[2]:
             elif row.get('status') == 'In Progress': base += 5
             return min(base, 100)
 
-        df['Risk Score'] = df.apply(assign_risk_score, axis=1)
-        df['AI Recommendation'] = df.apply(generate_ai_recommendation, axis=1)
-        st.dataframe(df[['Record ID', 'Description', 'Severity', 'Status', 'Tool', 'Team', 'Risk Score', 'AI Recommendation']])
+        data_source['Risk Score'] = data_source.apply(assign_risk_score, axis=1)
+        data_source['AI Recommendation'] = data_source.apply(generate_ai_recommendation, axis=1)
+        st.dataframe(data_source[['Record ID', 'Description', 'Severity', 'Status', 'Tool', 'Team', 'Risk Score', 'AI Recommendation']])
     else:
         st.warning("No data available for AI insights.")
 
 with tabs[3]:
     st.subheader("📊 KPI Dashboard")
-    if df is not None and not df.empty:
+    if data_source is not None and not data_source.empty:
         col1, col2, col3 = st.columns(3)
-        col1.metric("Total Tasks", len(df))
-        col2.metric("Open", (df['Status'] == 'Open').sum())
-        col3.metric("Resolved", (df['Status'] == 'Resolved').sum())
+        col1.metric("Total Tasks", len(data_source))
+        col2.metric("Open", (data_source['Status'] == 'Open').sum())
+        col3.metric("Resolved", (data_source['Status'] == 'Resolved').sum())
 
         st.markdown("### Severity Distribution")
-        severity_counts = df['Severity'].value_counts().reset_index()
+        severity_counts = data_source['Severity'].value_counts().reset_index()
         severity_counts.columns = ['Severity', 'Count']
         fig = px.bar(severity_counts, x='Severity', y='Count', color='Severity', title='Severity Breakdown')
         st.plotly_chart(fig, use_container_width=True)
@@ -130,32 +141,35 @@ import seaborn as sns
 
 with tabs[4]:
     st.subheader("📌 Admin / Analyst Dashboard")
-    if df is not None and not df.empty:
-        fallback_df = df.copy()
+    if data_source is not None and not data_source.empty:
+        fallback_data_source = data_source.copy()
         import numpy as np
         import random
         from datetime import datetime, timedelta
 
-        if 'domain' not in fallback_df.columns:
-            fallback_df['domain'] = np.random.choice(['IAM', 'Cloud', 'Network', 'Data'], size=len(fallback_df))
-        if 'severity' not in fallback_df.columns:
-            fallback_df['severity'] = np.random.choice(['Low', 'Medium', 'High'], size=len(fallback_df))
-        if 'status' not in fallback_df.columns:
-            fallback_df['status'] = np.random.choice(['Open', 'In Progress', 'Resolved'], size=len(fallback_df))
-        if 'when' not in fallback_df.columns:
-            fallback_df['when'] = [datetime.today() + timedelta(days=random.randint(-5, 10)) for _ in range(len(fallback_df))]
+        if 'domain' not in fallback_data_source.columns:
+            fallback_data_source['domain'] = np.random.choice(['IAM', 'Cloud', 'Network', 'Data'], size=len(fallback_data_source))
+        if 'severity' not in fallback_data_source.columns:
+            fallback_data_source['severity'] = np.random.choice(['Low', 'Medium', 'High'], size=len(fallback_data_source))
+        if 'status' not in fallback_data_source.columns:
+            fallback_data_source['status'] = np.random.choice(['Open', 'In Progress', 'Resolved'], size=len(fallback_data_source))
+        if 'when' not in fallback_data_source.columns:
+            fallback_data_source['when'] = [datetime.today() + timedelta(days=random.randint(-5, 10)) for _ in range(len(fallback_data_source))]
 
         st.subheader("Domain vs. Severity Heatmap")
-        heatmap_data = fallback_df.groupby(['domain', 'severity']).size().unstack(fill_value=0)
+        heatmap_data = fallback_data_source.groupby(['domain', 'severity']).size().unstack(fill_value=0)
         fig3, ax3 = plt.subplots(figsize=(10, 6))
         sns.heatmap(heatmap_data, annot=True, fmt='d', cmap='YlGnBu', ax=ax3)
         st.pyplot(fig3)
 
         st.subheader("Remediation Timeline")
         fig4, ax4 = plt.subplots(figsize=(10, 6))
-        sns.scatterplot(data=fallback_df, x='when', y='domain', hue='status', style='severity', ax=ax4)
+        sns.scatterplot(data=fallback_data_source, x='when', y='domain', hue='status', style='severity', ax=ax4)
         ax4.set_xlabel("Target Date")
         ax4.set_ylabel("Domain")
         st.pyplot(fig4)
     else:
         st.warning("No data available for enhanced admin visuals.")
+
+# Keep original df reference for legacy code blocks if needed
+df = data_source
