@@ -85,12 +85,15 @@ with tabs[2]:
     st.subheader("🧠 AI-Generated Insights")
     if df is not None and not df.empty:
         # ---------------- Risk Scoring Logic ----------------
+        # ---------------- Risk Scoring Logic (Normalized) ----------------
         def assign_risk_score(row):
             base = 50
-            if row.get('severity') == 'High': base += 30
-            elif row.get('severity') == 'Medium': base += 15
-            if row.get('status') == 'Open': base += 10
-            elif row.get('status') == 'In Progress': base += 5
+            sev = str(row.get('severity', '')).strip().lower()
+            stat = str(row.get('status', '')).strip().lower()
+            if sev == 'high': base += 30
+            elif sev == 'medium': base += 15
+            if stat == 'open': base += 10
+            elif stat == 'in progress': base += 5
             return min(base, 100)
 
         df['Risk Score'] = df.apply(assign_risk_score, axis=1)
