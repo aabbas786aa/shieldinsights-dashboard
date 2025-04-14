@@ -56,9 +56,9 @@ if data_source == 'Upload Excel File':
     if uploaded_file:
         data_source = pd.read_excel(uploaded_file)
     else:
-        data_source = generate_mock_data()
+        data_source = simulate_integrations_data()
 else:
-    data_source = generate_mock_data()
+    data_source = simulate_integrations_data()
 
 # Show data table
 st.subheader('📋 Remediation Tasks')
