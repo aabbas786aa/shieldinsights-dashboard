@@ -27,6 +27,7 @@ def simulate_integrations_data():
     }
     df_sim = pd.DataFrame(data)
     df_sim['Source'] = df_sim['Tool']  # normalize source column name for visuals
+    df_sim.columns = [col.lower() for col in df_sim.columns]
     return df_sim
 def generate_mock_data(n=30):
     domains = ['IAM', 'Cloud', 'Network', 'Endpoint']
