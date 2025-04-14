@@ -107,31 +107,29 @@ with tabs[3]:
 
 # ---------------- Admin/Analyst Dashboard ----------------
 
-# ---------------- Admin/Analyst Dashboard (Polished Visuals) ----------------
+# ---------------- Admin/Analyst Dashboard (Cool Tone Visuals) ----------------
 with tabs[4]:
     st.subheader("📌 Admin / Analyst Dashboard")
     if df is not None and not df.empty:
-        st.markdown("### 🔥 Severity Heatmap by Team")
+        st.markdown("### 🔷 Severity Heatmap by Team")
         heatmap_df = pd.crosstab(df['Team'], df['Severity'])
         heatmap_df = heatmap_df.reindex(index=sorted(heatmap_df.index), columns=['Low', 'Medium', 'High'])
         fig1 = px.imshow(
             heatmap_df,
-            color_continuous_scale='Magma',
+            text_auto=True,
+            color_continuous_scale='Blues',
             labels=dict(x='Severity', y='Team', color='Task Count'),
-            title='Team vs. Severity Heatmap',
+            title='Team vs. Severity Matrix',
         )
         fig1.update_layout(
-            title_font_size=16,
-            margin=dict(l=40, r=40, t=40, b=40),
-            xaxis_title='Severity Level',
-            yaxis_title='Team',
-            plot_bgcolor='#1e1e1e',
-            paper_bgcolor='#1e1e1e',
-            font=dict(color='white')
+            plot_bgcolor='#2a2a2a',
+            paper_bgcolor='#2a2a2a',
+            font=dict(color='white'),
+            margin=dict(l=40, r=40, t=40, b=40)
         )
         st.plotly_chart(fig1, use_container_width=True)
 
-        st.markdown("### ⏱ Task Timeline Scatter View")
+        st.markdown("### 🗓 Timeline of Tasks by Team")
         if 'Due Date' in df.columns:
             df['Due Date'] = pd.to_datetime(df['Due Date'], errors='coerce')
             fig2 = px.scatter(
@@ -139,18 +137,18 @@ with tabs[4]:
                 x='Due Date',
                 y='Team',
                 color='Severity',
-                size=[10]*len(df),
                 symbol='Status',
-                hover_name='Description',
-                hover_data=['Tool', 'Status', 'Team'],
-                title='Task Timeline by Team and Severity',
+                size=[12]*len(df),
+                hover_data=['Description', 'Status', 'Tool'],
+                title='Timeline of Remediation by Team'
             )
             fig2.update_layout(
-                title_font_size=16,
-                plot_bgcolor='#1e1e1e',
-                paper_bgcolor='#1e1e1e',
+                plot_bgcolor='#2a2a2a',
+                paper_bgcolor='#2a2a2a',
                 font=dict(color='white'),
-                margin=dict(l=30, r=30, t=40, b=30)
+                margin=dict(l=40, r=40, t=40, b=40),
+                xaxis_title='Due Date',
+                yaxis_title='Team'
             )
             st.plotly_chart(fig2, use_container_width=True)
     else:
