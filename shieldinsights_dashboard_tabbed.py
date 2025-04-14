@@ -26,9 +26,12 @@ import random
 st.title('ShieldInsights.ai – Real-Time Remediation Dashboard')
 
 # Data source selection
-data_source = st.radio('Select Data Source:', ['Upload Excel File', 'Use API (Simulated)'])
 
-# Structured mock data generator
+# Unified data source based on integration mode
+if integration_mode == "Simulated Integrations":
+    data_source = simulate_integrations_data()
+else:
+    data_source = generate_mock_data()  # Risk Cognizance fallback
 def generate_mock_data(n=30):
     domains = ['IAM', 'Cloud', 'Network', 'Endpoint']
     severities = ['Low', 'Medium', 'High']
