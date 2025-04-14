@@ -107,49 +107,27 @@ with tabs[3]:
 
 # ---------------- Admin/Analyst Dashboard ----------------
 
-# ---------------- Admin/Analyst Dashboard (Cool Tone Visuals) ----------------
+# ---------------- Admin/Analyst Dashboard (Seaborn Enhanced) ----------------
+import matplotlib.pyplot as plt
+import seaborn as sns
+
 with tabs[4]:
     st.subheader("📌 Admin / Analyst Dashboard")
     if df is not None and not df.empty:
-        st.markdown("### 🔷 Severity Heatmap by Team")
-        heatmap_df = pd.crosstab(df['Team'], df['Severity'])
-        heatmap_df = heatmap_df.reindex(index=sorted(heatmap_df.index), columns=['Low', 'Medium', 'High'])
-        fig1 = px.imshow(
-            heatmap_df,
-            text_auto=True,
-            color_continuous_scale='Blues',
-            labels=dict(x='Severity', y='Team', color='Task Count'),
-            title='Team vs. Severity Matrix',
-        )
-        fig1.update_layout(
-            plot_bgcolor='#2a2a2a',
-            paper_bgcolor='#2a2a2a',
-            font=dict(color='white'),
-            margin=dict(l=40, r=40, t=40, b=40)
-        )
-        st.plotly_chart(fig1, use_container_width=True)
+        filtered_df = df.copy()
+        if 'domain' in filtered_df.columns and 'severity' in filtered_df.columns:
+            st.subheader("Domain vs. Severity Heatmap")
+            heatmap_data = filtered_df.groupby(['domain', 'severity']).size().unstack(fill_value=0)
+            fig3, ax3 = plt.subplots(figsize=(10, 6))
+            sns.heatmap(heatmap_data, annot=True, fmt='d', cmap='YlGnBu', ax=ax3)
+            st.pyplot(fig3)
 
-        st.markdown("### 🗓 Timeline of Tasks by Team")
-        if 'Due Date' in df.columns:
-            df['Due Date'] = pd.to_datetime(df['Due Date'], errors='coerce')
-            fig2 = px.scatter(
-                df,
-                x='Due Date',
-                y='Team',
-                color='Severity',
-                symbol='Status',
-                size=[12]*len(df),
-                hover_data=['Description', 'Status', 'Tool'],
-                title='Timeline of Remediation by Team'
-            )
-            fig2.update_layout(
-                plot_bgcolor='#2a2a2a',
-                paper_bgcolor='#2a2a2a',
-                font=dict(color='white'),
-                margin=dict(l=40, r=40, t=40, b=40),
-                xaxis_title='Due Date',
-                yaxis_title='Team'
-            )
-            st.plotly_chart(fig2, use_container_width=True)
+        if 'when' in filtered_df.columns and 'domain' in filtered_df.columns:
+            st.subheader("Remediation Timeline")
+            fig4, ax4 = plt.subplots(figsize=(10, 6))
+            sns.scatterplot(data=filtered_df, x='when', y='domain', hue='status', style='severity', ax=ax4)
+            ax4.set_xlabel("Target Date")
+            ax4.set_ylabel("Domain")
+            st.pyplot(fig4)
     else:
-        st.warning("No data available for Admin/Analyst visuals.")
+        st.warning("No data available for enhanced admin visuals.")
