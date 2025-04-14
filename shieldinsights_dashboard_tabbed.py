@@ -106,23 +106,6 @@ with tabs[3]:
         st.warning("No data available for KPI analysis.")
 
 # ---------------- Admin/Analyst Dashboard ----------------
-        st.markdown('### ⏱ Timeline Scatter Plot: Due Dates by Team')
-        if 'Due Date' in df.columns:
-            df['Due Date'] = pd.to_datetime(df['Due Date'], errors='coerce')
-            fig2 = px.scatter(
-                df,
-                x='Due Date',
-                y='Team',
-                color='Severity',
-                size_max=10,
-                symbol='Status',
-                title='Remediation Task Timeline by Team'
-            )
-            st.plotly_chart(fig2, use_container_width=True)
-    else:
-        st.warning("No data available for admin analysis.")
-
-# ---------------- Admin/Analyst Dashboard (Polished) ----------------
 with tabs[4]:
     st.subheader("📌 Admin / Analyst Dashboard")
     if df is not None and not df.empty:
