@@ -2,6 +2,10 @@ import streamlit as st
 import pandas as pd
 st.set_page_config(layout='wide')
 
+# Sidebar integration mode selector
+integration_mode = st.sidebar.radio("Select Integration Mode:",
+                                    ["Risk Cognizance API (Current MVP)", "Simulated Integrations"])
+
 # ---------------- Integration Mode Toggle ----------------
 def get_api_data():
     # Placeholder: Replace with actual Risk Cognizance API call
