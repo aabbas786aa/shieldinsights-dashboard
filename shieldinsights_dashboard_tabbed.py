@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+st.set_page_config(layout='wide')
 
 # ---------------- Integration Mode Toggle ----------------
 def get_api_data():
@@ -22,7 +23,6 @@ import plotly.express as px
 from datetime import datetime, timedelta
 import random
 
-st.set_page_config(layout='wide')
 st.title('ShieldInsights.ai – Real-Time Remediation Dashboard')
 
 # Data source selection
