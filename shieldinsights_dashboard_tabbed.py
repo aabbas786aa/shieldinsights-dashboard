@@ -88,9 +88,7 @@ if integration_mode == "Simulated Integrations":
 else:
     data_source = generate_mock_data()
 else:
-    data_source = generate_mock_data()  # fallback simulated RC data
 else:
-    data_source = generate_mock_data()
 
 # Show data table
 st.subheader('📋 Remediation Tasks')
