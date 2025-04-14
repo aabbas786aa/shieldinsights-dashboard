@@ -68,6 +68,23 @@ st.dataframe(data_source)
 tabs = st.tabs(["Overview", "Timeline", "Insights", "KPI Dashboard", "Admin / Analyst"])
 
 with tabs[0]:
+    if integration_mode == "Simulated Integrations":
+        st.markdown("### 🔍 Simulated Tool Breakdown")
+        if 'source' in data_source.columns:
+            fig = px.pie(data_source, names='source', title='Data Distribution by Integration Source')
+            st.plotly_chart(fig, use_container_width=True)
+
+        st.markdown("### 🔎 Risk Scores by Integration")
+        if 'source' in data_source.columns and 'risk_score' in data_source.columns:
+            fig_bar = px.bar(data_source, x='source', y='risk_score', color='source', barmode='group',
+                            title='Average Risk Scores by Integration')
+            st.plotly_chart(fig_bar, use_container_width=True)
+
+        st.markdown("### 💡 Integration-Specific AI Recommendations")
+        for tool in data_source['source'].unique():
+            subset = data_source[data_source['source'] == tool]
+            st.markdown(f"**{tool}** Recommendations:")
+            st.dataframe(subset[['Record ID', 'Description', 'AI Recommendation']].head(5))
     st.subheader("🗂 Overview")
     col1, col2, col3 = st.columns(3)
     col1.metric("Total Tasks", len(data_source))
