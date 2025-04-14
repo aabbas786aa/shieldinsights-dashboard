@@ -30,7 +30,7 @@ def simulate_integrations_data():
         'Risk Score': np.random.randint(60, 96, sample_size),
     }
     df_sim = pd.DataFrame(data)
-    df_sim['Source'] = df_sim['Tool']  # normalize source column name for visuals
+    df_sim['source'] = df_sim['tool']  # normalize source column name for visuals
     df_sim.columns = [col.lower() for col in df_sim.columns]
     return df_sim
 def generate_mock_data(n=30):
@@ -55,6 +55,8 @@ def generate_mock_data(n=30):
 
 # Load data
 data_source = None
+if not data_source.empty:
+    data_source.columns = [col.lower().strip() for col in data_source.columns]
 if data_source == 'Upload Excel File':
     uploaded_file = st.file_uploader('Upload Excel File', type=['xlsx'])
     if uploaded_file:
@@ -92,8 +94,8 @@ with tabs[0]:
     st.subheader("🗂 Overview")
     col1, col2, col3 = st.columns(3)
     col1.metric("Total Tasks", len(data_source))
-    col2.metric("Open", (data_source['Status'] == 'Open').sum())
-    col3.metric("Resolved", (data_source['Status'] == 'Resolved').sum())
+    col2.metric("Open", (data_source['status'] == 'Open').sum())
+    col3.metric("Resolved", (data_source['status'] == 'Resolved').sum())
 
     st.dataframe(data_source)
 
@@ -109,13 +111,13 @@ with tabs[1]:
 
 # ------------------ AI Insights Generator ------------------
 def generate_ai_recommendation(row):
-    if row['Severity'] == 'High' and row['Status'] != 'Resolved':
+    if row['severity'] == 'High' and row['status'] != 'Resolved':
         return '🚨 Immediate attention required.'
-    elif row['Tool'] == 'CrowdStrike' and row['Status'] == 'Open':
+    elif row['tool'] == 'CrowdStrike' and row['status'] == 'Open':
         return '⚠️ Review endpoint configurations urgently.'
     elif row['Team'] == 'GRC':
         return '📄 Ensure compliance artifacts are updated.'
-    elif row['Status'] == 'In Progress':
+    elif row['status'] == 'In Progress':
         return '⏳ Monitor progress and confirm ETA.'
     else:
         return '✅ Proceed as planned.'
@@ -132,8 +134,8 @@ with tabs[2]:
             elif row.get('status') == 'In Progress': base += 5
             return min(base, 100)
 
-        data_source['Risk Score'] = data_source.apply(assign_risk_score, axis=1)
-        data_source['AI Recommendation'] = data_source.apply(generate_ai_recommendation, axis=1)
+        data_source['risk_score'] = data_source.apply(assign_risk_score, axis=1)
+        data_source['ai recommendation'] = data_source.apply(generate_ai_recommendation, axis=1)
         st.dataframe(data_source[['Record ID', 'Description', 'Severity', 'Status', 'Tool', 'Team', 'Risk Score', 'AI Recommendation']])
     else:
         st.warning("No data available for AI insights.")
@@ -143,11 +145,11 @@ with tabs[3]:
     if data_source is not None and not data_source.empty:
         col1, col2, col3 = st.columns(3)
         col1.metric("Total Tasks", len(data_source))
-        col2.metric("Open", (data_source['Status'] == 'Open').sum())
-        col3.metric("Resolved", (data_source['Status'] == 'Resolved').sum())
+        col2.metric("Open", (data_source['status'] == 'Open').sum())
+        col3.metric("Resolved", (data_source['status'] == 'Resolved').sum())
 
         st.markdown("### Severity Distribution")
-        severity_counts = data_source['Severity'].value_counts().reset_index()
+        severity_counts = data_source['severity'].value_counts().reset_index()
         severity_counts.columns = ['Severity', 'Count']
         fig = px.bar(severity_counts, x='Severity', y='Count', color='Severity', title='Severity Breakdown')
         st.plotly_chart(fig, use_container_width=True)
