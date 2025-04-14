@@ -86,6 +86,8 @@ if data_source == 'Upload Excel File':
 if integration_mode == "Simulated Integrations":
     data_source = simulate_integrations_data()
 else:
+    data_source = generate_mock_data()
+else:
     data_source = generate_mock_data()  # fallback simulated RC data
 else:
     data_source = generate_mock_data()
