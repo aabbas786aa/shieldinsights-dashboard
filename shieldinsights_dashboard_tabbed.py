@@ -8,27 +8,26 @@ def get_api_data():
     return df.copy() if 'df' in globals() else pd.DataFrame()
 
 def simulate_integrations_data():
-    simulated = df.copy() if 'df' in globals() else pd.DataFrame()
-    if not simulated.empty:
-        simulated['tool'] = simulated['tool'] if 'tool' in simulated.columns else 'CrowdStrike'
-        simulated['source'] = simulated['tool'].apply(lambda t: 'CrowdStrike' if 'cloud' in t.lower() else ('Okta' if 'iam' in t.lower() else 'Splunk'))
-        simulated['risk_score'] = simulated['severity'].apply(lambda s: 90 if s=='High' else (70 if s=='Medium' else 50))
-    return simulated
-
-integration_mode = st.sidebar.radio("Select Integration Mode:",
-                                    ["Risk Cognizance API (Current MVP)", "Simulated Integrations"])
-
-data_source = get_api_data() if integration_mode.startswith("Risk Cognizance") else simulate_integrations_data()
-import plotly.express as px
-from datetime import datetime, timedelta
-import random
-
-st.title('ShieldInsights.ai – Real-Time Remediation Dashboard')
-
-# Data source selection
-data_source = st.radio('Select Data Source:', ['Upload Excel File', 'Use API (Simulated)'])
-
-# Structured mock data generator
+    import numpy as np
+    sample_size = 30
+    tools = ['CrowdStrike', 'Okta', 'Splunk']
+    severities = ['High', 'Medium', 'Low']
+    statuses = ['Open', 'In Progress', 'Resolved']
+    descriptions = ['Endpoint threat detected', 'IAM misconfiguration', 'Anomaly in logs', 'Privilege escalation risk']
+    data = {
+        'Record ID': [f'R-{i+1:03d}' for i in range(sample_size)],
+        'Description': np.random.choice(descriptions, sample_size),
+        'Severity': np.random.choice(severities, sample_size),
+        'Status': np.random.choice(statuses, sample_size),
+        'Tool': np.random.choice(tools, sample_size),
+        'Team': np.random.choice(['SOC', 'IAM', 'Infra'], sample_size),
+        'AI Recommendation': np.random.choice([
+            'Enable MFA', 'Patch known vulnerabilities', 'Review IAM policies', 'Investigate anomalies'], sample_size),
+        'Risk Score': np.random.randint(60, 96, sample_size),
+    }
+    df_sim = pd.DataFrame(data)
+    df_sim['Source'] = df_sim['Tool']  # normalize source column name for visuals
+    return df_sim
 def generate_mock_data(n=30):
     domains = ['IAM', 'Cloud', 'Network', 'Endpoint']
     severities = ['Low', 'Medium', 'High']
