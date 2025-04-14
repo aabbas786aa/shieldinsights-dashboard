@@ -40,7 +40,7 @@ def simulate_integrations_data():
     return df_sim
 
 # Load data
-data_source = get_api_data() if integration_mode.startswith("Risk Cognizance") else simulate_integrations_data()
+data_source = simulate_integrations_data() if integration_mode == "Simulated Integrations" else simulate_integrations_data()  # Always use simulated fallback for Risk Cognizance too
 
 if data_source is not None and not data_source.empty:
     st.title("ShieldInsights.ai - Unified Dashboard")
