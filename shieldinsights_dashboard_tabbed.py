@@ -2,6 +2,11 @@ import streamlit as st
 import pandas as pd
 st.set_page_config(layout='wide')
 
+integration_mode = st.sidebar.radio("Select Integration Mode", ["Risk Cognizance API (Current MVP)", "Simulated Integrations"])
+if integration_mode == "Simulated Integrations":
+    data_source = simulate_integrations_data()
+else:
+    data_source = generate_mock_data()
 # ---------------- Integration Mode Toggle ----------------
 def get_api_data():
     # Placeholder: Replace with actual Risk Cognizance API call
@@ -15,20 +20,13 @@ def simulate_integrations_data():
         simulated['risk_score'] = simulated['severity'].apply(lambda s: 90 if s=='High' else (70 if s=='Medium' else 50))
     return simulated
 
-integration_mode = st.sidebar.radio("Select Integration Mode:",
 
 # Bulletproof integration handler
-try:
     if integration_mode == "Simulated Integrations":
-        data_source = simulate_integrations_data()
     else:
-        data_source = generate_mock_data()
-except Exception as e:
     st.error("Data loading failed. Please check integration logic.")
-    st.stop()
                                     ["Risk Cognizance API (Current MVP)", "Simulated Integrations"])
 
-data_source = get_api_data() if integration_mode.startswith("Risk Cognizance") else simulate_integrations_data()
 import plotly.express as px
 from datetime import datetime, timedelta
 import random
@@ -36,7 +34,6 @@ import random
 st.title('ShieldInsights.ai – Real-Time Remediation Dashboard')
 
 # Data source selection
-data_source = st.radio('Select Data Source:', ['Upload Excel File', 'Use API (Simulated)'])
 
 # Structured mock data generator
 def generate_mock_data(n=30):
@@ -60,11 +57,8 @@ def generate_mock_data(n=30):
     return pd.DataFrame(data)
 
 # Load data
-data_source = None
-if data_source == 'Upload Excel File':
     uploaded_file = st.file_uploader('Upload Excel File', type=['xlsx'])
     if uploaded_file:
-        data_source = pd.read_excel(uploaded_file)
     else:
 else:
 
@@ -150,7 +144,6 @@ import seaborn as sns
 with tabs[4]:
     st.subheader("📌 Admin / Analyst Dashboard")
     if data_source is not None and not data_source.empty:
-        fallback_data_source = data_source.copy()
         import numpy as np
         import random
         from datetime import datetime, timedelta
