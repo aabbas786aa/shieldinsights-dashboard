@@ -1,15 +1,14 @@
 import streamlit as st
+        # ---------------- Risk Scoring Logic ----------------
+        def assign_risk_score(row):
+            base = 50
+            if row.get('severity') == 'High': base += 30
+            elif row.get('severity') == 'Medium': base += 15
+            if row.get('status') == 'Open': base += 10
+            elif row.get('status') == 'In Progress': base += 5
+            return min(base, 100)
 
-    # ---------------- Risk Scoring Logic ----------------
-    def assign_risk_score(row):
-        base = 50
-        if row.get('severity') == 'High': base += 30
-        elif row.get('severity') == 'Medium': base += 15
-        if row.get('status') == 'Open': base += 10
-        elif row.get('status') == 'In Progress': base += 5
-        return min(base, 100)
-
-    df['Risk Score'] = df.apply(assign_risk_score, axis=1)
+        df['Risk Score'] = df.apply(assign_risk_score, axis=1)
 import pandas as pd
 import plotly.express as px
 from datetime import datetime, timedelta
