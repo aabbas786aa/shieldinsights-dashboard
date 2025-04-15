@@ -94,7 +94,7 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
     '🧠 AI-Powered Insights (GPT-4)'
 ])
 
-with tabs[0]:
+with tab1:
     st.subheader("🗂 Overview")
     col1, col2, col3 = st.columns(3)
     col1.metric("Total Tasks", len(data_source))
@@ -103,7 +103,7 @@ with tabs[0]:
 
     st.dataframe(data_source)
 
-with tabs[1]:
+with tab2:
     st.subheader("📅 Remediation Timeline")
     if 'Start Date' in data_source.columns and 'Due Date' in data_source.columns:
         data_source['Start Date'] = pd.to_datetime(data_source['Start Date'], errors='coerce')
@@ -126,7 +126,7 @@ def generate_ai_recommendation(row):
     else:
         return '✅ Proceed as planned.'
 
-with tabs[2]:
+with tab3:
     st.subheader("🧠 AI-Generated Insights")
     if data_source is not None and not data_source.empty:
         # ---------------- Risk Scoring Logic ----------------
@@ -144,7 +144,7 @@ with tabs[2]:
     else:
         st.warning("No data available for AI insights.")
 
-with tabs[3]:
+with tab4:
     st.subheader("📊 KPI Dashboard")
     if data_source is not None and not data_source.empty:
         col1, col2, col3 = st.columns(3)
@@ -166,7 +166,7 @@ with tabs[3]:
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-with tabs[4]:
+with tab5:
     st.subheader("📌 Admin / Analyst Dashboard")
     if data_source is not None and not data_source.empty:
         fallback_data_source = data_source.copy()
