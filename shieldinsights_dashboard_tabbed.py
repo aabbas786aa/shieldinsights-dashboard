@@ -91,10 +91,11 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
     'KPI Dashboard',
     'Analyst Dashboard',
     'Remediation Table',
+    '🧠 AI-Powered Insights (GPT-4)'
+])
 
 # -------------------- AI-Powered Insights (GPT-4) --------------------
 with tab5:
-    st.subheader('🧠 AI-Powered Insights (GPT-4)')
     st.markdown('''This module uses OpenAI GPT-4 to generate remediation guidance based on your filtered data.''')
     import openai
     openai.api_key = st.secrets['OPENAI_API_KEY']
@@ -163,7 +164,6 @@ df = data_source
 
 # -------------------- AI-Powered Insights (GPT-4) --------------------
 with tab5:
-    st.subheader('🧠 AI-Powered Insights (GPT-4)')
     st.markdown('''This module uses OpenAI GPT-4 to generate remediation guidance based on your filtered data.''')
     import openai
     openai.api_key = st.secrets['OPENAI_API_KEY']
