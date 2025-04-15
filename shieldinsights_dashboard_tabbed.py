@@ -18,6 +18,14 @@ def simulate_integrations_data():
 integration_mode = st.sidebar.radio("Select Integration Mode:",
                                     ["Risk Cognizance API (Current MVP)", "Simulated Integrations"])
 
+
+# ---------- FILE UPLOAD BLOCK ----------
+uploaded_file = st.sidebar.file_uploader("📂 Upload Your Remediation File", type=["xlsx"])
+if uploaded_file:
+    data_source = pd.read_excel(uploaded_file)
+    st.sidebar.success("✅ File uploaded and loaded successfully.")
+else:
+    st.sidebar.warning("⚠️ Using preloaded sample data.")
 data_source = get_api_data() if integration_mode.startswith("Risk Cognizance") else simulate_integrations_data()
 import plotly.express as px
 from datetime import datetime, timedelta
