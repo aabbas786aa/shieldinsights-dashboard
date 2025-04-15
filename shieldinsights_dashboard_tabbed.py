@@ -86,7 +86,13 @@ data_source = data_source[
 ].copy()
 
 # ------------------ Dashboard Tabs ------------------
-tabs = st.tabs(["Overview", "Timeline", "Insights", "KPI Dashboard", "Admin / Analyst"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    'Overview',
+    'KPI Dashboard',
+    'Analyst Dashboard',
+    'Remediation Table',
+    '🧠 AI-Powered Insights (GPT-4)'
+])
 
 with tabs[0]:
     st.subheader("🗂 Overview")
