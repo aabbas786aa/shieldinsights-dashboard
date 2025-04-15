@@ -194,3 +194,37 @@ with tabs[4]:
 
 # Keep original df reference for legacy code blocks if needed
 df = data_source
+
+# -------------------- AI-Powered Insights (GPT-4) --------------------
+with tab5:
+    st.subheader('🧠 AI-Powered Insights (GPT-4)')
+    st.markdown('''This module uses OpenAI GPT-4 to generate remediation guidance based on your filtered data.''')
+    import openai
+    openai.api_key = st.secrets['OPENAI_API_KEY']
+
+    preview_df = data_source[['Description', 'Severity', 'Domain']].dropna().head(5)
+    if preview_df.empty:
+        st.warning('No data available to analyze.')
+    else:
+        for i, row in preview_df.iterrows():
+            prompt = f"""
+            Given the following issue:
+            Description: {row['Description']}
+            Severity: {row['Severity']}
+            Domain: {row['Domain']}
+
+            Suggest a detailed remediation plan from a security best practices perspective.
+            """
+            try:
+                response = openai.ChatCompletion.create(
+                    model="gpt-4",
+                    messages=[
+                        {"role": "system", "content": "You are a cybersecurity expert providing remediation advice."},
+                        {"role": "user", "content": prompt}
+                    ]
+                )
+                insight = response.choices[0].message.content
+                st.markdown(f"### 🔍 Insight for: `{row['Description'][:50]}...`")
+                st.success(insight)
+            except Exception as e:
+                st.error(f"Error from OpenAI: {e}")
