@@ -91,82 +91,41 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
     'KPI Dashboard',
     'Analyst Dashboard',
     'Remediation Table',
-    '🧠 AI-Powered Insights (GPT-4)'
-])
 
-with tab1:
-    st.subheader("🗂 Overview")
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Total Tasks", len(data_source))
-    col2.metric("Open", (data_source['Status'] == 'Open').sum())
-    col3.metric("Resolved", (data_source['Status'] == 'Resolved').sum())
-
-    st.dataframe(data_source)
-
-with tab2:
-    st.subheader("📅 Remediation Timeline")
-    if 'Start Date' in data_source.columns and 'Due Date' in data_source.columns:
-        data_source['Start Date'] = pd.to_datetime(data_source['Start Date'], errors='coerce')
-        data_source['Due Date'] = pd.to_datetime(data_source['Due Date'], errors='coerce')
-        fig = px.timeline(data_source, x_start='Start Date', x_end='Due Date', y='Description', color='Status')
-        fig.update_yaxes(autorange='reversed')
-        st.plotly_chart(fig, use_container_width=True)
-
-
-# ------------------ AI Insights Generator ------------------
-def generate_ai_recommendation(row):
-    if row['Severity'] == 'High' and row['Status'] != 'Resolved':
-        return '🚨 Immediate attention required.'
-    elif row['Tool'] == 'CrowdStrike' and row['Status'] == 'Open':
-        return '⚠️ Review endpoint configurations urgently.'
-    elif row['Team'] == 'GRC':
-        return '📄 Ensure compliance artifacts are updated.'
-    elif row['Status'] == 'In Progress':
-        return '⏳ Monitor progress and confirm ETA.'
-    else:
-        return '✅ Proceed as planned.'
-
-with tab3:
-    st.subheader("🧠 AI-Generated Insights")
-    if data_source is not None and not data_source.empty:
-        # ---------------- Risk Scoring Logic ----------------
-        def assign_risk_score(row):
-            base = 50
-            if row.get('severity') == 'High': base += 30
-            elif row.get('severity') == 'Medium': base += 15
-            if row.get('status') == 'Open': base += 10
-            elif row.get('status') == 'In Progress': base += 5
-            return min(base, 100)
-
-        data_source['Risk Score'] = data_source.apply(assign_risk_score, axis=1)
-        data_source['AI Recommendation'] = data_source.apply(generate_ai_recommendation, axis=1)
-        st.dataframe(data_source[['Record ID', 'Description', 'Severity', 'Status', 'Tool', 'Team', 'Risk Score', 'AI Recommendation']])
-    else:
-        st.warning("No data available for AI insights.")
-
-with tab4:
-    st.subheader("📊 KPI Dashboard")
-    if data_source is not None and not data_source.empty:
-        col1, col2, col3 = st.columns(3)
-        col1.metric("Total Tasks", len(data_source))
-        col2.metric("Open", (data_source['Status'] == 'Open').sum())
-        col3.metric("Resolved", (data_source['Status'] == 'Resolved').sum())
-
-        st.markdown("### Severity Distribution")
-        severity_counts = data_source['Severity'].value_counts().reset_index()
-        severity_counts.columns = ['Severity', 'Count']
-        fig = px.bar(severity_counts, x='Severity', y='Count', color='Severity', title='Severity Breakdown')
-        st.plotly_chart(fig, use_container_width=True)
-    else:
-        st.warning("No data available for KPI analysis.")
-
-# ---------------- Admin/Analyst Dashboard ----------------
-
-# ---------------- Admin/Analyst Dashboard (Seaborn with Fallback) ----------------
-import matplotlib.pyplot as plt
-import seaborn as sns
-
+# -------------------- AI-Powered Insights (GPT-4) --------------------
 with tab5:
+    st.subheader('🧠 AI-Powered Insights (GPT-4)')
+    st.markdown('''This module uses OpenAI GPT-4 to generate remediation guidance based on your filtered data.''')
+    import openai
+    openai.api_key = st.secrets['OPENAI_API_KEY']
+
+    required_columns = {'Description', 'Severity', 'Domain'}
+    if required_columns.issubset(data_source.columns):
+        preview_df = data_source[['Description', 'Severity', 'Domain']].dropna().head(5)
+        for i, row in preview_df.iterrows():
+            prompt = f"""
+            Given the following issue:
+            Description: {row['Description']}
+            Severity: {row['Severity']}
+            Domain: {row['Domain']}
+
+            Suggest a detailed remediation plan from a security best practices perspective.
+            """
+            try:
+                response = openai.ChatCompletion.create(
+                    model="gpt-4",
+                    messages=[
+                        {"role": "system", "content": "You are a cybersecurity expert providing remediation advice."},
+                        {"role": "user", "content": prompt}
+                    ]
+                )
+                insight = response.choices[0].message.content
+                st.markdown(f"### 🔍 Insight for: `{row['Description'][:50]}...`")
+                st.success(insight)
+            except Exception as e:
+                st.error(f"Error from OpenAI: {e}")
+    else:
+        st.warning("⚠️ Required columns ('Description', 'Severity', 'Domain') not found in the data. Please upload a valid remediation file.")
     st.subheader("📌 Admin / Analyst Dashboard")
     if data_source is not None and not data_source.empty:
         fallback_data_source = data_source.copy()
@@ -201,6 +160,7 @@ with tab5:
 # Keep original df reference for legacy code blocks if needed
 df = data_source
 
+
 # -------------------- AI-Powered Insights (GPT-4) --------------------
 with tab5:
     st.subheader('🧠 AI-Powered Insights (GPT-4)')
@@ -208,10 +168,9 @@ with tab5:
     import openai
     openai.api_key = st.secrets['OPENAI_API_KEY']
 
-    preview_df = data_source[['Description', 'Severity', 'Domain']].dropna().head(5)
-    if preview_df.empty:
-        st.warning('No data available to analyze.')
-    else:
+    required_columns = {'Description', 'Severity', 'Domain'}
+    if required_columns.issubset(data_source.columns):
+        preview_df = data_source[['Description', 'Severity', 'Domain']].dropna().head(5)
         for i, row in preview_df.iterrows():
             prompt = f"""
             Given the following issue:
@@ -234,3 +193,5 @@ with tab5:
                 st.success(insight)
             except Exception as e:
                 st.error(f"Error from OpenAI: {e}")
+    else:
+        st.warning("⚠️ Required columns ('Description', 'Severity', 'Domain') not found in the data. Please upload a valid remediation file.")
