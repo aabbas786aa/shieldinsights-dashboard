@@ -24,20 +24,9 @@ integration_mode = st.sidebar.radio("Select Integration Mode:",
 # ---------- FILE UPLOAD BLOCK ----------
 uploaded_file = st.sidebar.file_uploader("📂 Upload Your Remediation File", type=["xlsx"])
 if uploaded_file:
-    data_source = pd.read_excel(uploaded_file)
-    st.sidebar.success("✅ File uploaded and loaded successfully.")
-else:
-    st.sidebar.warning("⚠️ Using preloaded sample data.")
-data_source = get_api_data() if integration_mode.startswith("Risk Cognizance") else simulate_integrations_data()
-import plotly.express as px
-from datetime import datetime, timedelta
-import random
-
 st.title('ShieldInsights.ai – Real-Time Remediation Dashboard')
 
 # Data source selection
-data_source = st.radio('Select Data Source:', ['Upload Excel File', 'Use API (Simulated)'])
-
 # Structured mock data generator
 def generate_mock_data(n=30):
     domains = ['IAM', 'Cloud', 'Network', 'Endpoint']
@@ -60,16 +49,6 @@ def generate_mock_data(n=30):
     return pd.DataFrame(data)
 
 # Load data
-data_source = None
-if data_source == 'Upload Excel File':
-    uploaded_file = st.file_uploader('Upload Excel File', type=['xlsx'])
-    if uploaded_file:
-        data_source = pd.read_excel(uploaded_file)
-    else:
-        data_source = generate_mock_data()
-else:
-    data_source = generate_mock_data()
-
 # Show data table
 st.subheader('📋 Remediation Tasks')
 st.dataframe(data_source)
@@ -80,12 +59,6 @@ colA, colB, colC = st.columns(3)
 selected_status = colA.multiselect("Filter by Status", options=sorted(data_source['Status'].dropna().unique()), default=sorted(data_source['Status'].dropna().unique()))
 selected_severity = colB.multiselect("Filter by Severity", options=sorted(data_source['Severity'].dropna().unique()), default=sorted(data_source['Severity'].dropna().unique()))
 selected_team = colC.multiselect("Filter by Team", options=sorted(data_source['Team'].dropna().unique()), default=sorted(data_source['Team'].dropna().unique()))
-
-data_source = data_source[
-    data_source['Status'].isin(selected_status) &
-    data_source['Severity'].isin(selected_severity) &
-    data_source['Team'].isin(selected_team)
-].copy()
 
 # ------------------ Dashboard Tabs ------------------
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
@@ -131,11 +104,6 @@ with tab5:
         st.warning("⚠️ Required columns ('Description', 'Severity', 'Domain') not found in the data. Please upload a valid remediation file.")
     st.subheader("📌 Admin / Analyst Dashboard")
     if data_source is not None and not data_source.empty:
-        fallback_data_source = data_source.copy()
-        import numpy as np
-        import random
-        from datetime import datetime, timedelta
-
         if 'domain' not in fallback_data_source.columns:
             fallback_data_source['domain'] = np.random.choice(['IAM', 'Cloud', 'Network', 'Data'], size=len(fallback_data_source))
         if 'severity' not in fallback_data_source.columns:
@@ -148,12 +116,10 @@ with tab5:
         st.subheader("Domain vs. Severity Heatmap")
         heatmap_data = fallback_data_source.groupby(['domain', 'severity']).size().unstack(fill_value=0)
         fig3, ax3 = plt.subplots(figsize=(10, 6))
-        sns.heatmap(heatmap_data, annot=True, fmt='d', cmap='YlGnBu', ax=ax3)
         st.pyplot(fig3)
 
         st.subheader("Remediation Timeline")
         fig4, ax4 = plt.subplots(figsize=(10, 6))
-        sns.scatterplot(data=fallback_data_source, x='when', y='domain', hue='status', style='severity', ax=ax4)
         ax4.set_xlabel("Target Date")
         ax4.set_ylabel("Domain")
         st.pyplot(fig4)
@@ -165,7 +131,6 @@ df = data_source
 
 
 # -------------------- AI-Powered Insights (GPT-4) --------------------
-with tab5:
     st.markdown('''This module uses OpenAI GPT-4 to generate remediation guidance based on your filtered data.''')
     import openai
     openai.api_key = st.secrets['OPENAI_API_KEY']
