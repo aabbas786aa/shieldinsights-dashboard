@@ -5,5 +5,5 @@ seaborn
 openpyxl
 xlsxwriter
 plotly
-openai
+openai>=1.0.0
 numpy
