@@ -24,7 +24,7 @@ integration_mode = st.sidebar.radio("Select Integration Mode:",
 # ---------- FILE UPLOAD BLOCK ----------
 uploaded_file = st.sidebar.file_uploader("📂 Upload Your Remediation File", type=["xlsx"])
 if uploaded_file:
-st.title('ShieldInsights.ai – Real-Time Remediation Dashboard')
+    st.title('ShieldInsights.ai – Real-Time Remediation Dashboard')
 
 # Data source selection
 # Structured mock data generator
@@ -130,7 +130,6 @@ with tab5:
 df = data_source
 
 
-# -------------------- AI-Powered Insights (GPT-4) --------------------
     st.markdown('''This module uses OpenAI GPT-4 to generate remediation guidance based on your filtered data.''')
     import openai
     openai.api_key = st.secrets['OPENAI_API_KEY']
