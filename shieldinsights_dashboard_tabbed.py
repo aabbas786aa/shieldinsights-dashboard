@@ -30,16 +30,18 @@ if uploaded_file:
     data = []
     for i in range(n):
         data.append({
-            'Record ID': f'RID-{1000 + i}',
-            'Description': f'Task {i}',
-            'Severity': random.choice(severities),
-            'Status': random.choice(statuses),
-            'Team': random.choice(teams),
-            'Tool': random.choice(tools),
-            'Start Date': (datetime.today() - timedelta(days=random.randint(0, 10))).strftime('%Y-%m-%d'),
-            'Due Date': (datetime.today() + timedelta(days=random.randint(3, 15))).strftime('%Y-%m-%d')
-        })
-    return pd.DataFrame(data)
+def generate_mock_data(n=30):
+    data = []
+                'Record ID': f'RID-{1000 + i}',
+                'Description': f'Task {i}',
+                'Severity': random.choice(severities),
+                'Status': random.choice(statuses),
+                'Team': random.choice(teams),
+                'Tool': random.choice(tools),
+                'Start Date': (datetime.today() - timedelta(days=random.randint(0, 10))).strftime('%Y-%m-%d'),
+                'Due Date': (datetime.today() + timedelta(days=random.randint(3, 15))).strftime('%Y-%m-%d')
+            })
+        return pd.DataFrame(data)
 
 # Load data
 # Show data table
