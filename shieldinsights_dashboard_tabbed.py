@@ -27,11 +27,7 @@ if uploaded_file:
     st.title('ShieldInsights.ai – Real-Time Remediation Dashboard')
     preview_df = pd.read_excel(uploaded_file).dropna().head(5)
     st.write(preview_df)
-    data = []
-    for i in range(n):
-        data.append({
 def generate_mock_data(n=30):
-    data = []
                 'Record ID': f'RID-{1000 + i}',
                 'Description': f'Task {i}',
                 'Severity': random.choice(severities),
@@ -40,7 +36,6 @@ def generate_mock_data(n=30):
                 'Tool': random.choice(tools),
                 'Start Date': (datetime.today() - timedelta(days=random.randint(0, 10))).strftime('%Y-%m-%d'),
                 'Due Date': (datetime.today() + timedelta(days=random.randint(3, 15))).strftime('%Y-%m-%d')
-            })
         return pd.DataFrame(data)
 
 # Load data
