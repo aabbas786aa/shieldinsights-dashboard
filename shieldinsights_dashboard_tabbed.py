@@ -78,7 +78,6 @@ with tab5:
     st.markdown('''This module uses OpenAI GPT-4 to generate remediation guidance based on your filtered data.''')
     import openai
 client = openai.OpenAI(api_key=st.secrets['OPENAI_API_KEY'])
-    openai.api_key = st.secrets['OPENAI_API_KEY']
 
     required_columns = {'Description', 'Severity', 'Domain'}
     if required_columns.issubset(data_source.columns):
@@ -138,7 +137,6 @@ df = data_source
 # -------------------- AI-Powered Insights (GPT-4) --------------------
 st.markdown('''This module uses OpenAI GPT-4 to generate remediation guidance based on your filtered data.''')
 import openai
-openai.api_key = st.secrets['OPENAI_API_KEY']
 
 required_columns = {'Description', 'Severity', 'Domain'}
 if required_columns.issubset(data_source.columns):
