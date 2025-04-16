@@ -77,54 +77,54 @@ with tab5:
 
     required_columns = {'Description', 'Severity', 'Domain'}
     if required_columns.issubset(data_source.columns):
-        preview_df = data_source[['Description', 'Severity', 'Domain']].dropna().head(5)
-        for i, row in preview_df.iterrows():
-            prompt = f"""
-            Given the following issue:
-            Description: {row['Description']}
-            Severity: {row['Severity']}
-            Domain: {row['Domain']}
+    preview_df = data_source[['Description', 'Severity', 'Domain']].dropna().head(5)
+    for i, row in preview_df.iterrows():
+    prompt = f"""
+    Given the following issue:
+    Description: {row['Description']}
+    Severity: {row['Severity']}
+    Domain: {row['Domain']}
 
-            Suggest a detailed remediation plan from a security best practices perspective.
-            """
-            try:
-                response = openai.ChatCompletion.create(
-                    model="gpt-4",
-                    messages=[
-                        {"role": "system", "content": "You are a cybersecurity expert providing remediation advice."},
-                        {"role": "user", "content": prompt}
-                    ]
-                )
-                insight = response.choices[0].message.content
-                st.markdown(f"### 🔍 Insight for: `{row['Description'][:50]}...`")
-                st.success(insight)
-            except Exception as e:
-                st.error(f"Error from OpenAI: {e}")
+    Suggest a detailed remediation plan from a security best practices perspective.
+    """
+    try:
+    response = openai.ChatCompletion.create(
+    model="gpt-4",
+    messages=[
+    {"role": "system", "content": "You are a cybersecurity expert providing remediation advice."},
+    {"role": "user", "content": prompt}
+    ]
+    )
+    insight = response.choices[0].message.content
+    st.markdown(f"### 🔍 Insight for: `{row['Description'][:50]}...`")
+    st.success(insight)
+    except Exception as e:
+    st.error(f"Error from OpenAI: {e}")
     else:
-        st.warning("⚠️ Required columns ('Description', 'Severity', 'Domain') not found in the data. Please upload a valid remediation file.")
+    st.warning("⚠️ Required columns ('Description', 'Severity', 'Domain') not found in the data. Please upload a valid remediation file.")
     st.subheader("📌 Admin / Analyst Dashboard")
     if data_source is not None and not data_source.empty:
-        if 'domain' not in fallback_data_source.columns:
-            fallback_data_source['domain'] = np.random.choice(['IAM', 'Cloud', 'Network', 'Data'], size=len(fallback_data_source))
-        if 'severity' not in fallback_data_source.columns:
-            fallback_data_source['severity'] = np.random.choice(['Low', 'Medium', 'High'], size=len(fallback_data_source))
-        if 'status' not in fallback_data_source.columns:
-            fallback_data_source['status'] = np.random.choice(['Open', 'In Progress', 'Resolved'], size=len(fallback_data_source))
-        if 'when' not in fallback_data_source.columns:
-            fallback_data_source['when'] = [datetime.today() + timedelta(days=random.randint(-5, 10)) for _ in range(len(fallback_data_source))]
+    if 'domain' not in fallback_data_source.columns:
+    fallback_data_source['domain'] = np.random.choice(['IAM', 'Cloud', 'Network', 'Data'], size=len(fallback_data_source))
+    if 'severity' not in fallback_data_source.columns:
+    fallback_data_source['severity'] = np.random.choice(['Low', 'Medium', 'High'], size=len(fallback_data_source))
+    if 'status' not in fallback_data_source.columns:
+    fallback_data_source['status'] = np.random.choice(['Open', 'In Progress', 'Resolved'], size=len(fallback_data_source))
+    if 'when' not in fallback_data_source.columns:
+    fallback_data_source['when'] = [datetime.today() + timedelta(days=random.randint(-5, 10)) for _ in range(len(fallback_data_source))]
 
-        st.subheader("Domain vs. Severity Heatmap")
-        heatmap_data = fallback_data_source.groupby(['domain', 'severity']).size().unstack(fill_value=0)
-        fig3, ax3 = plt.subplots(figsize=(10, 6))
-        st.pyplot(fig3)
+    st.subheader("Domain vs. Severity Heatmap")
+    heatmap_data = fallback_data_source.groupby(['domain', 'severity']).size().unstack(fill_value=0)
+    fig3, ax3 = plt.subplots(figsize=(10, 6))
+    st.pyplot(fig3)
 
-        st.subheader("Remediation Timeline")
-        fig4, ax4 = plt.subplots(figsize=(10, 6))
-        ax4.set_xlabel("Target Date")
-        ax4.set_ylabel("Domain")
-        st.pyplot(fig4)
+    st.subheader("Remediation Timeline")
+    fig4, ax4 = plt.subplots(figsize=(10, 6))
+    ax4.set_xlabel("Target Date")
+    ax4.set_ylabel("Domain")
+    st.pyplot(fig4)
     else:
-        st.warning("No data available for enhanced admin visuals.")
+    st.warning("No data available for enhanced admin visuals.")
 
 # Keep original df reference for legacy code blocks if needed
 df = data_source
@@ -136,28 +136,28 @@ df = data_source
 
     required_columns = {'Description', 'Severity', 'Domain'}
     if required_columns.issubset(data_source.columns):
-        preview_df = data_source[['Description', 'Severity', 'Domain']].dropna().head(5)
-        for i, row in preview_df.iterrows():
-            prompt = f"""
-            Given the following issue:
-            Description: {row['Description']}
-            Severity: {row['Severity']}
-            Domain: {row['Domain']}
+    preview_df = data_source[['Description', 'Severity', 'Domain']].dropna().head(5)
+    for i, row in preview_df.iterrows():
+    prompt = f"""
+    Given the following issue:
+    Description: {row['Description']}
+    Severity: {row['Severity']}
+    Domain: {row['Domain']}
 
-            Suggest a detailed remediation plan from a security best practices perspective.
-            """
-            try:
-                response = openai.ChatCompletion.create(
-                    model="gpt-4",
-                    messages=[
-                        {"role": "system", "content": "You are a cybersecurity expert providing remediation advice."},
-                        {"role": "user", "content": prompt}
-                    ]
-                )
-                insight = response.choices[0].message.content
-                st.markdown(f"### 🔍 Insight for: `{row['Description'][:50]}...`")
-                st.success(insight)
-            except Exception as e:
-                st.error(f"Error from OpenAI: {e}")
+    Suggest a detailed remediation plan from a security best practices perspective.
+    """
+    try:
+    response = openai.ChatCompletion.create(
+    model="gpt-4",
+    messages=[
+    {"role": "system", "content": "You are a cybersecurity expert providing remediation advice."},
+    {"role": "user", "content": prompt}
+    ]
+    )
+    insight = response.choices[0].message.content
+    st.markdown(f"### 🔍 Insight for: `{row['Description'][:50]}...`")
+    st.success(insight)
+    except Exception as e:
+    st.error(f"Error from OpenAI: {e}")
     else:
-        st.warning("⚠️ Required columns ('Description', 'Severity', 'Domain') not found in the data. Please upload a valid remediation file.")
+    st.warning("⚠️ Required columns ('Description', 'Severity', 'Domain') not found in the data. Please upload a valid remediation file.")
