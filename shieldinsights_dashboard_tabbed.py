@@ -28,26 +28,26 @@ def get_api_data():
 # ---------- FILE UPLOAD BLOCK ----------
     uploaded_file = st.sidebar.file_uploader("📂 Upload Your Remediation File", type=["xlsx"])
     if uploaded_file:
-    st.title('ShieldInsights.ai – Real-Time Remediation Dashboard')
-    preview_df = pd.read_excel(uploaded_file).dropna().head(5)
-    st.write(preview_df)
+        st.title('ShieldInsights.ai – Real-Time Remediation Dashboard')
+        preview_df = pd.read_excel(uploaded_file).dropna().head(5)
+        st.write(preview_df)
     def generate_mock_data(n=30):
-    severities = ['High', 'Medium', 'Low']
-    statuses = ['Open', 'Closed', 'In Progress']
-    teams = ['Team A', 'Team B', 'Team C']
-    tools = ['Tool X', 'Tool Y', 'Tool Z']
-    domains = ['IAM', 'Network', 'Cloud', 'Endpoint']
-    data = []
-    for i in range(n):
-    data.append({
-    'Record ID': f'RID-{1000 + i}',
-    'Description': f'Task {i}',
-    'Severity': random.choice(severities),
-    'Status': random.choice(statuses),
-    'Team': random.choice(teams),
-    'Tool': random.choice(tools),
-    'Domain': random.choice(domains)
-    })
+        severities = ['High', 'Medium', 'Low']
+        statuses = ['Open', 'Closed', 'In Progress']
+        teams = ['Team A', 'Team B', 'Team C']
+        tools = ['Tool X', 'Tool Y', 'Tool Z']
+        domains = ['IAM', 'Network', 'Cloud', 'Endpoint']
+        data = []
+        for i in range(n):
+        data.append({
+        'Record ID': f'RID-{1000 + i}',
+        'Description': f'Task {i}',
+        'Severity': random.choice(severities),
+        'Status': random.choice(statuses),
+        'Team': random.choice(teams),
+        'Tool': random.choice(tools),
+        'Domain': random.choice(domains)
+        })
     return pd.DataFrame(data)
 
 # Initialize fallback data source
