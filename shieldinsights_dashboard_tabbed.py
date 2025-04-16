@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 from datetime import datetime, timedelta
-    st.set_page_config(layout='wide')
+
+st.set_page_config(layout='wide')
 
 # ---------------- Integration Mode Toggle ----------------
     def get_api_data():
