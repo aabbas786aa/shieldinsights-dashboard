@@ -160,6 +160,21 @@ with tabs[5]:  # Ensure it integrates as a tab in the main code
     st.markdown('''This module uses OpenAI GPT-4 to generate remediation guidance based on your filtered data.''')
 
     import openai
+
+    openai.api_key = "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"
+
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": "Provide a summary of AI technology."}
+            ]
+        )
+        print(response.choices[0].message.content)
+    except openai.error.OpenAIError as e:
+        print(f"Error: {e}")
+        
     client = openai.OpenAI(api_key=st.secrets['OPENAI_API_KEY'])
 
     required_columns = {'Description', 'Severity', 'Domain'}
