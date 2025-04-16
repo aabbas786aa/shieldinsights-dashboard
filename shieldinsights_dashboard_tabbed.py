@@ -84,27 +84,27 @@ def get_api_data():
         if required_columns.issubset(data_source.columns):
             preview_df = data_source[['Description', 'Severity', 'Domain']].dropna().head(5)
             for i, row in preview_df.iterrows():
-            prompt = f"""
-            Given the following issue:
-            Description: {row['Description']}
-            Severity: {row['Severity']}
-            Domain: {row['Domain']}
-        
-            Suggest a detailed remediation plan from a security best practices perspective.
-            """
-            try:
-                response = client.chat.completions.create(
-                    model="gpt-4",
-                    messages=[
-                        {"role": "system", "content": "You are a cybersecurity expert providing remediation advice."},
-                        {"role": "user", "content": prompt}
-                    ]
-                )
-                insight = response.choices[0].message.content
-                st.markdown(f"### 🔍 Insight for: `{row['Description'][:50]}...`")
-                st.success(insight)
-            except Exception as e:
-                st.error(f"Error from OpenAI: {e}")
+                prompt = f"""
+                Given the following issue:
+                Description: {row['Description']}
+                Severity: {row['Severity']}
+                Domain: {row['Domain']}
+            
+                Suggest a detailed remediation plan from a security best practices perspective.
+                """
+                try:
+                    response = client.chat.completions.create(
+                        model="gpt-4",
+                        messages=[
+                            {"role": "system", "content": "You are a cybersecurity expert providing remediation advice."},
+                            {"role": "user", "content": prompt}
+                        ]
+                    )
+                    insight = response.choices[0].message.content
+                    st.markdown(f"### 🔍 Insight for: `{row['Description'][:50]}...`")
+                    st.success(insight)
+                except Exception as e:
+                    st.error(f"Error from OpenAI: {e}")
     else:
         st.warning("⚠️ Required columns ('Description', 'Severity', 'Domain') not found in the data. Please upload a valid remediation file.")
     st.subheader("📌 Admin / Analyst Dashboard")
