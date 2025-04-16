@@ -14,12 +14,12 @@ def get_api_data():
     return df.copy() if 'df' in globals() else pd.DataFrame()
 
     def simulate_integrations_data():
-    simulated = df.copy() if 'df' in globals() else pd.DataFrame()
-    if not simulated.empty:
-    simulated['tool'] = simulated['tool'] if 'tool' in simulated.columns else 'CrowdStrike'
-    simulated['source'] = simulated['tool'].apply(lambda t: 'CrowdStrike' if 'cloud' in t.lower() else ('Okta' if 'iam' in t.lower() else 'Splunk'))
-    simulated['risk_score'] = simulated['severity'].apply(lambda s: 90 if s=='High' else (70 if s=='Medium' else 50))
-    return simulated
+        simulated = df.copy() if 'df' in globals() else pd.DataFrame()
+        if not simulated.empty:
+            simulated['tool'] = simulated['tool'] if 'tool' in simulated.columns else 'CrowdStrike'
+            simulated['source'] = simulated['tool'].apply(lambda t: 'CrowdStrike' if 'cloud' in t.lower() else ('Okta' if 'iam' in t.lower() else 'Splunk'))
+            simulated['risk_score'] = simulated['severity'].apply(lambda s: 90 if s=='High' else (70 if s=='Medium' else 50))
+        return simulated
 
     integration_mode = st.sidebar.radio("Select Integration Mode:",
     ["Risk Cognizance API (Current MVP)", "Simulated Integrations"])
