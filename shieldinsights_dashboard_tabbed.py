@@ -77,6 +77,7 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
 with tab5:
     st.markdown('''This module uses OpenAI GPT-4 to generate remediation guidance based on your filtered data.''')
     import openai
+client = openai.OpenAI(api_key=st.secrets['OPENAI_API_KEY'])
     openai.api_key = st.secrets['OPENAI_API_KEY']
 
     required_columns = {'Description', 'Severity', 'Domain'}
@@ -92,7 +93,7 @@ with tab5:
             Suggest a detailed remediation plan from a security best practices perspective.
             """
             try:
-                response = openai.ChatCompletion.create(
+response = client.chat.completions.create(
                     model="gpt-4",
                     messages=[
                         {"role": "system", "content": "You are a cybersecurity expert providing remediation advice."},
@@ -152,7 +153,7 @@ if required_columns.issubset(data_source.columns):
         Suggest a detailed remediation plan from a security best practices perspective.
         """
         try:
-            response = openai.ChatCompletion.create(
+response = client.chat.completions.create(
                 model="gpt-4",
                 messages=[
                     {"role": "system", "content": "You are a cybersecurity expert providing remediation advice."},
