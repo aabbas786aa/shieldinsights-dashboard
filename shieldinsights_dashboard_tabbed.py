@@ -46,6 +46,9 @@ def generate_mock_data(n=30):
         })
     return pd.DataFrame(data)
 
+# Initialize fallback data source
+data_source = generate_mock_data()
+
 # Load data
 # Show data table
 st.subheader('📋 Remediation Tasks')
