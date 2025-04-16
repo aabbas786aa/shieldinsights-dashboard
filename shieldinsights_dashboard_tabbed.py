@@ -106,17 +106,17 @@ with tab5:
         st.warning("⚠️ Required columns ('Description', 'Severity', 'Domain') not found in the data. Please upload a valid remediation file.")
     st.subheader("📌 Admin / Analyst Dashboard")
     if data_source is not None and not data_source.empty:
-        if 'domain' not in fallback_data_source.columns:
-            fallback_data_source['domain'] = np.random.choice(['IAM', 'Cloud', 'Network', 'Data'], size=len(fallback_data_source))
-        if 'severity' not in fallback_data_source.columns:
-            fallback_data_source['severity'] = np.random.choice(['Low', 'Medium', 'High'], size=len(fallback_data_source))
-        if 'status' not in fallback_data_source.columns:
-            fallback_data_source['status'] = np.random.choice(['Open', 'In Progress', 'Resolved'], size=len(fallback_data_source))
-        if 'when' not in fallback_data_source.columns:
-            fallback_data_source['when'] = [datetime.today() + timedelta(days=random.randint(-5, 10)) for _ in range(len(fallback_data_source))]
+        if 'domain' not in data_source.columns:
+            data_source['domain'] = np.random.choice(['IAM', 'Cloud', 'Network', 'Data'], size=len(data_source))
+        if 'severity' not in data_source.columns:
+            data_source['severity'] = np.random.choice(['Low', 'Medium', 'High'], size=len(data_source))
+        if 'status' not in data_source.columns:
+            data_source['status'] = np.random.choice(['Open', 'In Progress', 'Resolved'], size=len(data_source))
+        if 'when' not in data_source.columns:
+            data_source['when'] = [datetime.today() + timedelta(days=random.randint(-5, 10)) for _ in range(len(data_source))]
 
         st.subheader("Domain vs. Severity Heatmap")
-        heatmap_data = fallback_data_source.groupby(['domain', 'severity']).size().unstack(fill_value=0)
+        heatmap_data = data_source.groupby(['domain', 'severity']).size().unstack(fill_value=0)
         fig3, ax3 = plt.subplots(figsize=(10, 6))
         st.pyplot(fig3)
 
