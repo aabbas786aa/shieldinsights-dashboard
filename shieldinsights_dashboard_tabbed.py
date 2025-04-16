@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 st.set_page_config(layout='wide')
 
 # ---------------- Integration Mode Toggle ----------------
-    def get_api_data():
+def get_api_data():
     # Placeholder: Replace with actual Risk Cognizance API call
     return df.copy() if 'df' in globals() else pd.DataFrame()
 
