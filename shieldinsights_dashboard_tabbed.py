@@ -154,32 +154,13 @@ with tabs[4]:
         st.warning("No data available for enhanced admin visuals.")
 
 
-# -------------------- AI-Powered Insights (GPT-4) --------------------
+## -------------------- AI-Powered Insights (GPT-4) --------------------
 with tabs[5]:  # Ensure it integrates as a tab in the main code
     st.subheader("🧠 AI-Powered Insights (GPT-4)")
     st.markdown('''This module uses OpenAI GPT-4 to generate remediation guidance based on your filtered data.''')
 
-   import openai
-
-    # Access the OpenAI API key securely from Streamlit secrets
-    openai.api_key = st.secrets["OPENAI_API_KEY"]
-    
-    # Example function to call GPT-4
-    def get_gpt4_response(prompt):
-        try:
-            response = openai.ChatCompletion.create(
-                model="gpt-4",
-                messages=[
-                    {"role": "system", "content": "You are a cybersecurity expert providing remediation advice."},
-                    {"role": "user", "content": prompt}
-                ]
-            )
-            return response.choices[0].message.content
-        except openai.error.OpenAIError as e:
-            st.error(f"Error from OpenAI: {e}")
-            return None
-        
-    client = openai.OpenAI(api_key=st.secrets['OPENAI_API_KEY'])
+    import openai  # Ensure proper indentation for import statements
+    client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
     required_columns = {'Description', 'Severity', 'Domain'}
     if required_columns.issubset(data_source.columns):  # Check if required columns exist
@@ -208,7 +189,6 @@ with tabs[5]:  # Ensure it integrates as a tab in the main code
                 st.markdown(f"### 🔍 Insight for: `{row['Description'][:50]}...`")
                 st.success(insight)
             except Exception as e:
-                # Handle any errors from the OpenAI API
                 st.error(f"Error from OpenAI: {e}")
     else:
         # Warn the user if required columns are not found
