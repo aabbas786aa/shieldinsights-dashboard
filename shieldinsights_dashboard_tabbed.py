@@ -39,16 +39,16 @@ def get_api_data():
         domains = ['IAM', 'Network', 'Cloud', 'Endpoint']
         data = []
         for i in range(n):
-        data.append({
-        'Record ID': f'RID-{1000 + i}',
-        'Description': f'Task {i}',
-        'Severity': random.choice(severities),
-        'Status': random.choice(statuses),
-        'Team': random.choice(teams),
-        'Tool': random.choice(tools),
-        'Domain': random.choice(domains)
-        })
-    return pd.DataFrame(data)
+            data.append({
+                'Record ID': f'RID-{1000 + i}',
+                'Description': f'Task {i}',
+                'Severity': random.choice(severities),
+                'Status': random.choice(statuses),
+                'Team': random.choice(teams),
+                'Tool': random.choice(tools),
+                'Domain': random.choice(domains)
+            })
+        return pd.DataFrame(data)
 
 # Initialize fallback data source
     data_source = generate_mock_data()
