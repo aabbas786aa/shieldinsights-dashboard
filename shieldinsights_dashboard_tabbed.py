@@ -154,42 +154,42 @@ with tabs[4]:
         st.warning("No data available for enhanced admin visuals.")
 
 
-157| ## -------------------- AI-Powered Insights (GPT-4o) --------------------
-158| with tabs[5]:  # Ensure it integrates as a tab in the main code
-159|     st.subheader("🧠 AI-Powered Insights (GPT-4o)")
-160|     st.markdown('''This module uses OpenAI GPT-4o to generate remediation guidance based on your filtered data.''')
-161| 
-162|     import openai  # Ensure proper indentation for import statements
-163|     client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-164| 
-165|     required_columns = {'Description', 'Severity', 'Domain'}
-166|     if required_columns.issubset(data_source.columns):  # Check if required columns exist
-167|         preview_df = data_source[['Description', 'Severity', 'Domain']].dropna().head(5)  # Sample top 5 rows
-168|         for i, row in preview_df.iterrows():
-169|             # Create a GPT-4o prompt based on the row's data
-170|             prompt = f"""
-171|             Given the following issue:
-172|             Description: {row['Description']}
-173|             Severity: {row['Severity']}
-174|             Domain: {row['Domain']}
-175| 
-176|             Suggest a detailed remediation plan from a security best practices perspective.
-177|             """
-178|             try:
-179|                 # Make the API call to GPT-4o
-180|                 response = client.chat.completions.create(
-181|                     model="gpt-4o",
-182|                     messages=[
-183|                         {"role": "system", "content": "You are a cybersecurity expert providing remediation advice."},
-184|                         {"role": "user", "content": prompt}
-185|                     ]
-186|                 )
-187|                 # Extract and display the generated insight
-188|                 insight = response.choices[0].message.content
-189|                 st.markdown(f"### 🔍 Insight for: `{row['Description'][:50]}...`")
-190|                 st.success(insight)
-191|             except Exception as e:
-192|                 st.error(f"Error from OpenAI: {e}")
-193|     else:
-194|         # Warn the user if required columns are not found
-195|         st.warning("⚠️ Required columns ('Description', 'Severity', 'Domain') not found in the data. Please upload a valid remediation file.")
+# -------------------- AI-Powered Insights (GPT-4o) --------------------
+with tabs[5]:  # Ensure it integrates as a tab in the main code
+    st.subheader("🧠 AI-Powered Insights (GPT-4o)")
+    st.markdown('''This module uses OpenAI GPT-4o to generate remediation guidance based on your filtered data.''')
+
+    import openai  # Ensure proper indentation for import statements
+    client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+
+    required_columns = {'Description', 'Severity', 'Domain'}
+    if required_columns.issubset(data_source.columns):  # Check if required columns exist
+        preview_df = data_source[['Description', 'Severity', 'Domain']].dropna().head(5)  # Sample top 5 rows
+        for i, row in preview_df.iterrows():
+            # Create a GPT-4o prompt based on the row's data
+            prompt = f"""
+            Given the following issue:
+            Description: {row['Description']}
+            Severity: {row['Severity']}
+            Domain: {row['Domain']}
+
+            Suggest a detailed remediation plan from a security best practices perspective.
+            """
+            try:
+                # Make the API call to GPT-4o
+                response = client.chat.completions.create(
+                    model="gpt-4o",
+                    messages=[
+                        {"role": "system", "content": "You are a cybersecurity expert providing remediation advice."},
+                        {"role": "user", "content": prompt}
+                    ]
+                )
+                # Extract and display the generated insight
+                insight = response.choices[0].message.content
+                st.markdown(f"### 🔍 Insight for: `{row['Description'][:50]}...`")
+                st.success(insight)
+            except Exception as e:
+                st.error(f"Error from OpenAI: {e}")
+    else:
+        # Warn the user if required columns are not found
+        st.warning("⚠️ Required columns ('Description', 'Severity', 'Domain') not found in the data. Please upload a valid remediation file.")
