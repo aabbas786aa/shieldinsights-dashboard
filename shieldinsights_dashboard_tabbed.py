@@ -13,6 +13,8 @@ def get_api_data():
 # ---------- FILE UPLOAD BLOCK ----------
 uploaded_file = st.sidebar.file_uploader("📂 Upload Your Remediation File", type=["xlsx"])
 if uploaded_file:
+    preview_df = data_source[['Description', 'Severity', 'Domain']].dropna().head(5)
+    st.write(preview_df)
     st.title('ShieldInsights.ai – Real-Time Remediation Dashboard')
 
 # Data source selection
