@@ -284,4 +284,4 @@ with tabs[5]:  # AI-Powered Insights Tab
             st.info("No changes detected. Insights are up-to-date.")
     else:
         # Warn the user if required columns are not found
-        st.warning("⚠️ Required columns ('Description', 'Severity', 'Domain') not found in the data. Please upload a valid remediation file.")ile.")
+        st.warning("⚠️ Required columns ('Description', 'Severity', 'Domain') not found in the data. Please upload a valid remediation file.")
