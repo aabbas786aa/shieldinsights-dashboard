@@ -55,6 +55,31 @@ def generate_mock_data(n=30):
 # Initialize fallback data source
 data_source = generate_mock_data()
 
+# --------- ADVANCED FILTERS BLOCK ---------
+st.markdown("### 🧰 Advanced Filters")
+colA, colB, colC = st.columns(3)
+selected_status = colA.multiselect(
+    "Filter by Status",
+    options=sorted(data_source['Status'].dropna().unique()),
+    default=sorted(data_source['Status'].dropna().unique())
+)
+selected_severity = colB.multiselect(
+    "Filter by Severity",
+    options=sorted(data_source['Severity'].dropna().unique()),
+    default=sorted(data_source['Severity'].dropna().unique())
+)
+selected_team = colC.multiselect(
+    "Filter by Team",
+    options=sorted(data_source['Team'].dropna().unique()),
+    default=sorted(data_source['Team'].dropna().unique())
+)
+
+data_source = data_source[
+    data_source['Status'].isin(selected_status) &
+    data_source['Severity'].isin(selected_severity) &
+    data_source['Team'].isin(selected_team)
+].copy()
+
 # ------------------ Dashboard Tabs ------------------
 tabs = st.tabs([
     "Overview", "Timeline", "Insights", "KPI Dashboard", "Admin / Analyst", "🧠 AI-Powered Insights (Enterprise GenAI)"
