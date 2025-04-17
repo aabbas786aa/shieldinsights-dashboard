@@ -27,11 +27,18 @@ integration_mode = st.sidebar.radio("Select Integration Mode:",
                                     ["Risk Cognizance API (Current MVP)", "Simulated Integrations"])
 
 # ---------- FILE UPLOAD BLOCK ----------
-uploaded_file = st.sidebar.file_uploader("📂 Upload Your Remediation File", type=["xlsx"])
-if uploaded_file:
-    st.title('ShieldInsights.ai – Real-Time Remediation Dashboard')
-    preview_df = pd.read_excel(uploaded_file).dropna().head(5)
-    st.write(preview_df)
+def handle_file_upload():
+    """Handles file upload and sets change detection flag."""
+    uploaded_file = st.sidebar.file_uploader("📂 Upload Your Remediation File", type=["xlsx"])
+    if uploaded_file:
+        st.session_state['change_detected'] = True  # Set the change detection flag
+        st.title('ShieldInsights.ai – Real-Time Remediation Dashboard')
+        preview_df = pd.read_excel(uploaded_file).dropna().head(5)
+        st.write(preview_df)
+    return uploaded_file
+
+# Handle file upload once
+uploaded_file = handle_file_upload()
 
 # Track changes in session state
 if 'change_detected' not in st.session_state:
@@ -44,9 +51,6 @@ if uploaded_file:
     preview_df = pd.read_excel(uploaded_file).dropna().head(5)
     st.write(preview_df)
 
-# Detect filter changes
-#if selected_status or selected_severity or selected_team:
-#    st.session_state['change_detected'] = True  # Set the change detection flag
 
 def generate_mock_data(n=30):
     severities = ['High', 'Medium', 'Low']
@@ -89,22 +93,12 @@ selected_team = colC.multiselect(
     default=sorted(data_source['Team'].dropna().unique())
 )
 
+# Apply filters to data source
 data_source = data_source[
     data_source['Status'].isin(selected_status) &
     data_source['Severity'].isin(selected_severity) &
     data_source['Team'].isin(selected_team)
 ].copy()
-
-# Track changes in session state
-if 'change_detected' not in st.session_state:
-    st.session_state['change_detected'] = False
-
-# Detect file upload changes
-#if uploaded_file:
-#    st.session_state['change_detected'] = True  # Set the change detection flag
- #   st.title('ShieldInsights.ai – Real-Time Remediation Dashboard')
- #   preview_df = pd.read_excel(uploaded_file).dropna().head(5)
- #   st.write(preview_df)
 
 # Detect filter changes
 if selected_status or selected_severity or selected_team:
@@ -234,9 +228,10 @@ with tabs[5]:  # AI-Powered Insights Tab
     st.subheader("🧠 AI-Powered Insights (Enterprise GenAI)")
     st.markdown('''This module uses Enterprise GenAI LLM to generate remediation guidance based on your filtered data.''')
 
-    import openai  # Ensure proper indentation for import statements
+    # Import OpenAI and initialize the client
+    import openai
     client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-
+    
     # Check for required columns in the data
     required_columns = {'Description', 'Severity', 'Domain'}
     if required_columns.issubset(data_source.columns):  # Ensure the required columns exist
@@ -286,4 +281,4 @@ with tabs[5]:  # AI-Powered Insights Tab
             st.info("No changes detected. Insights are up-to-date.")
     else:
         # Warn the user if required columns are not found
-        st.warning("⚠️ Required columns ('Description', 'Severity', 'Domain') not found in the data. Please upload a valid remediation file.")on file.")
+        st.warning("⚠️ Required columns ('Description', 'Severity', 'Domain') not found in the data. Please upload a valid remediation file.")
