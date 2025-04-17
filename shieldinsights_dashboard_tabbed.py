@@ -57,7 +57,7 @@ data_source = generate_mock_data()
 
 # ------------------ Dashboard Tabs ------------------
 tabs = st.tabs([
-    "Overview", "Timeline", "Insights", "KPI Dashboard", "Admin / Analyst", "🧠 AI-Powered Insights (GPT-4)"
+    "Overview", "Timeline", "Insights", "KPI Dashboard", "Admin / Analyst", "🧠 AI-Powered Insights (Enterprise GenAI)"
 ])
 
 with tabs[0]:
@@ -156,8 +156,8 @@ with tabs[4]:
 
 # -------------------- AI-Powered Insights (GPT-4o) --------------------
 with tabs[5]:  # Ensure it integrates as a tab in the main code
-    st.subheader("🧠 AI-Powered Insights (GPT-4o)")
-    st.markdown('''This module uses OpenAI GPT-4o to generate remediation guidance based on your filtered data.''')
+    st.subheader("🧠 AI-Powered Insights (Enterprise GenAI)")
+    st.markdown('''This module uses Enterprise GenAl LLM to generate remediation guidance based on your filtered data.''')
 
     import openai  # Ensure proper indentation for import statements
     client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
