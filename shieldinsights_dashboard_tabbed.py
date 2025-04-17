@@ -231,18 +231,20 @@ with tabs[5]:  # AI-Powered Insights Tab
     # Import OpenAI and initialize the client
     import openai
     client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-    
+
     # Check for required columns in the data
     required_columns = {'Description', 'Severity', 'Domain'}
     if required_columns.issubset(data_source.columns):  # Ensure the required columns exist
         preview_df = data_source[['Description', 'Severity', 'Domain']].dropna().head(5)  # Sample top 5 rows
-        
+
         # Add a confirmation dialog to control GPT-4o execution
         change_detected = st.session_state.get('change_detected', False)  # Track changes in session state
         if change_detected:  # If a change is detected
+            st.warning("The App has detected changes to the data.")
             rerun_decision = st.radio(
-                "The App has noticed a change to the data. Would you like to re-run the GenAI Insights?",
-                ["Yes", "No"]
+                "Would you like to re-run the GenAI Insights?",
+                ["Yes", "No"],
+                index=1  # Default to "No"
             )
 
             if rerun_decision == "Yes":
@@ -250,6 +252,7 @@ with tabs[5]:  # AI-Powered Insights Tab
                 st.session_state['change_detected'] = False
 
                 # Execute GPT-4o insights generation
+                st.info("Running GenAI Insights...")
                 for i, row in preview_df.iterrows():
                     # Create a GPT-4o prompt based on the row's data
                     prompt = f"""
@@ -281,4 +284,4 @@ with tabs[5]:  # AI-Powered Insights Tab
             st.info("No changes detected. Insights are up-to-date.")
     else:
         # Warn the user if required columns are not found
-        st.warning("⚠️ Required columns ('Description', 'Severity', 'Domain') not found in the data. Please upload a valid remediation file.")
+        st.warning("⚠️ Required columns ('Description', 'Severity', 'Domain') not found in the data. Please upload a valid remediation file.")ile.")
