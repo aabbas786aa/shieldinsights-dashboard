@@ -45,8 +45,8 @@ if uploaded_file:
     st.write(preview_df)
 
 # Detect filter changes
-if selected_status or selected_severity or selected_team:
-    st.session_state['change_detected'] = True  # Set the change detection flag
+#if selected_status or selected_severity or selected_team:
+#    st.session_state['change_detected'] = True  # Set the change detection flag
 
 def generate_mock_data(n=30):
     severities = ['High', 'Medium', 'Low']
@@ -100,11 +100,11 @@ if 'change_detected' not in st.session_state:
     st.session_state['change_detected'] = False
 
 # Detect file upload changes
-if uploaded_file:
-    st.session_state['change_detected'] = True  # Set the change detection flag
-    st.title('ShieldInsights.ai – Real-Time Remediation Dashboard')
-    preview_df = pd.read_excel(uploaded_file).dropna().head(5)
-    st.write(preview_df)
+#if uploaded_file:
+#    st.session_state['change_detected'] = True  # Set the change detection flag
+ #   st.title('ShieldInsights.ai – Real-Time Remediation Dashboard')
+ #   preview_df = pd.read_excel(uploaded_file).dropna().head(5)
+ #   st.write(preview_df)
 
 # Detect filter changes
 if selected_status or selected_severity or selected_team:
