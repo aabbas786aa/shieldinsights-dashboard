@@ -95,12 +95,32 @@ with tabs[0]:
 
 with tabs[1]:
     st.subheader("📅 Remediation Timeline")
-    if 'Start Date' in data_source.columns and 'Due Date' in data_source.columns:
+    
+    # Check if the necessary columns exist in the data source
+    if {'Start Date', 'Due Date', 'Description', 'Status'}.issubset(data_source.columns):
+        # Convert columns to datetime and handle invalid entries
         data_source['Start Date'] = pd.to_datetime(data_source['Start Date'], errors='coerce')
         data_source['Due Date'] = pd.to_datetime(data_source['Due Date'], errors='coerce')
-        fig = px.timeline(data_source, x_start='Start Date', x_end='Due Date', y='Description', color='Status')
-        fig.update_yaxes(autorange='reversed')
-        st.plotly_chart(fig, use_container_width=True)
+
+        # Filter out rows with invalid or missing dates
+        valid_data = data_source.dropna(subset=['Start Date', 'Due Date'])
+
+        if not valid_data.empty:
+            # Create a timeline plot using Plotly
+            fig = px.timeline(
+                valid_data,
+                x_start='Start Date',
+                x_end='Due Date',
+                y='Description',
+                color='Status',
+                title="Remediation Timeline"
+            )
+            fig.update_yaxes(autorange='reversed')  # Reverse the y-axis for better visualization
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.warning("No valid data available for the timeline. Please check 'Start Date' and 'Due Date' columns.")
+    else:
+        st.warning("Required columns ('Start Date', 'Due Date', 'Description', 'Status') are missing in the data source.")
 
 # ------------------ AI Insights Generator ------------------
 def generate_ai_recommendation(row):
