@@ -33,6 +33,21 @@ if uploaded_file:
     preview_df = pd.read_excel(uploaded_file).dropna().head(5)
     st.write(preview_df)
 
+# Track changes in session state
+if 'change_detected' not in st.session_state:
+    st.session_state['change_detected'] = False
+
+# Detect file upload changes
+if uploaded_file:
+    st.session_state['change_detected'] = True  # Set the change detection flag
+    st.title('ShieldInsights.ai – Real-Time Remediation Dashboard')
+    preview_df = pd.read_excel(uploaded_file).dropna().head(5)
+    st.write(preview_df)
+
+# Detect filter changes
+if selected_status or selected_severity or selected_team:
+    st.session_state['change_detected'] = True  # Set the change detection flag
+
 def generate_mock_data(n=30):
     severities = ['High', 'Medium', 'Low']
     statuses = ['Open', 'Closed', 'In Progress']
@@ -79,6 +94,21 @@ data_source = data_source[
     data_source['Severity'].isin(selected_severity) &
     data_source['Team'].isin(selected_team)
 ].copy()
+
+# Track changes in session state
+if 'change_detected' not in st.session_state:
+    st.session_state['change_detected'] = False
+
+# Detect file upload changes
+if uploaded_file:
+    st.session_state['change_detected'] = True  # Set the change detection flag
+    st.title('ShieldInsights.ai – Real-Time Remediation Dashboard')
+    preview_df = pd.read_excel(uploaded_file).dropna().head(5)
+    st.write(preview_df)
+
+# Detect filter changes
+if selected_status or selected_severity or selected_team:
+    st.session_state['change_detected'] = True  # Set the change detection flag
 
 # ------------------ Dashboard Tabs ------------------
 tabs = st.tabs([
@@ -200,41 +230,60 @@ with tabs[4]:
 
 
 # -------------------- AI-Powered Insights (GPT-4o) --------------------
-with tabs[5]:  # Ensure it integrates as a tab in the main code
+with tabs[5]:  # AI-Powered Insights Tab
     st.subheader("🧠 AI-Powered Insights (Enterprise GenAI)")
-    st.markdown('''This module uses Enterprise GenAl LLM to generate remediation guidance based on your filtered data.''')
+    st.markdown('''This module uses Enterprise GenAI LLM to generate remediation guidance based on your filtered data.''')
 
     import openai  # Ensure proper indentation for import statements
     client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
+    # Check for required columns in the data
     required_columns = {'Description', 'Severity', 'Domain'}
-    if required_columns.issubset(data_source.columns):  # Check if required columns exist
+    if required_columns.issubset(data_source.columns):  # Ensure the required columns exist
         preview_df = data_source[['Description', 'Severity', 'Domain']].dropna().head(5)  # Sample top 5 rows
-        for i, row in preview_df.iterrows():
-            # Create a GPT-4o prompt based on the row's data
-            prompt = f"""
-            Given the following issue:
-            Description: {row['Description']}
-            Severity: {row['Severity']}
-            Domain: {row['Domain']}
+        
+        # Add a confirmation dialog to control GPT-4o execution
+        change_detected = st.session_state.get('change_detected', False)  # Track changes in session state
+        if change_detected:  # If a change is detected
+            rerun_decision = st.radio(
+                "The App has noticed a change to the data. Would you like to re-run the GenAI Insights?",
+                ["Yes", "No"]
+            )
 
-            Suggest a detailed remediation plan from a security best practices perspective.
-            """
-            try:
-                # Make the API call to GPT-4o
-                response = client.chat.completions.create(
-                    model="gpt-4o",
-                    messages=[
-                        {"role": "system", "content": "You are a cybersecurity expert providing remediation advice."},
-                        {"role": "user", "content": prompt}
-                    ]
-                )
-                # Extract and display the generated insight
-                insight = response.choices[0].message.content
-                st.markdown(f"### 🔍 Insight for: `{row['Description'][:50]}...`")
-                st.success(insight)
-            except Exception as e:
-                st.error(f"Error from OpenAI: {e}")
+            if rerun_decision == "Yes":
+                # Reset change detection flag
+                st.session_state['change_detected'] = False
+
+                # Execute GPT-4o insights generation
+                for i, row in preview_df.iterrows():
+                    # Create a GPT-4o prompt based on the row's data
+                    prompt = f"""
+                    Given the following issue:
+                    Description: {row['Description']}
+                    Severity: {row['Severity']}
+                    Domain: {row['Domain']}
+
+                    Suggest a detailed remediation plan from a security best practices perspective.
+                    """
+                    try:
+                        # Make the API call to GPT-4o
+                        response = client.chat.completions.create(
+                            model="gpt-4o",
+                            messages=[
+                                {"role": "system", "content": "You are a cybersecurity expert providing remediation advice."},
+                                {"role": "user", "content": prompt}
+                            ]
+                        )
+                        # Extract and display the generated insight
+                        insight = response.choices[0].message.content
+                        st.markdown(f"### 🔍 Insight for: `{row['Description'][:50]}...`")
+                        st.success(insight)
+                    except Exception as e:
+                        st.error(f"Error from OpenAI: {e}")
+            else:
+                st.info("AI insights execution skipped.")
+        else:
+            st.info("No changes detected. Insights are up-to-date.")
     else:
         # Warn the user if required columns are not found
-        st.warning("⚠️ Required columns ('Description', 'Severity', 'Domain') not found in the data. Please upload a valid remediation file.")
+        st.warning("⚠️ Required columns ('Description', 'Severity', 'Domain') not found in the data. Please upload a valid remediation file.")on file.")
